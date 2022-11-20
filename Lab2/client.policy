@@ -1,0 +1,7 @@
+grant codeBase "file:/home/student/POS_Lab2/POS-labs/Lab2/Pb1/out/artifacts/RMI_CLient_jar/RMI_CLient.jar" {
+	permission java.security.AllPermission;
+};
+
+grant codeBase "file:/home/student/POS_Lab2/POS-labs/Lab2/Pb2/out/artifacts/RMI_CLient_jar/RMI_CLient.jar" {
+	permission java.security.AllPermission;
+};
