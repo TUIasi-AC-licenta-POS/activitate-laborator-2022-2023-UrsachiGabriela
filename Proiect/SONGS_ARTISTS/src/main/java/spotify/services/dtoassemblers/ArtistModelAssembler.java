@@ -1,11 +1,11 @@
-package spotify.view.assemblers;
+package spotify.services.dtoassemblers;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
-import spotify.view.dto.responses.ArtistDTO;
+import spotify.view.responses.ArtistDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +28,19 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
                 .withSelfRel());
 
         links.add(linkTo(
-                methodOn(WebController.class).getAllArtists())
+                methodOn(WebController.class).getAllArtists(null, null, null, null))
                 .withRel("parent"));
 
-        links.add(linkTo(
-                methodOn(WebController.class).getAllSongsForGivenArtist(artistDTO.getId()))
-                .withRel("songs"));
+
+        links.add(linkTo(methodOn(WebController.class).assignSongsToArtist(artistDTO.getId(), null)).withRel("assign songs").withType("POST"));
+        links.add(linkTo(methodOn(WebController.class).deleteArtist(artistDTO.getId())).withRel("delete artist").withType("DELETE"));
+
+        if (artistDTO.getHasSongs()) {
+            links.add(linkTo(
+                    methodOn(WebController.class).getAllSongsForGivenArtist(artistDTO.getId()))
+                    .withRel("songs"));
+        }
+
         artistDTO.add(links);
 
         return artistDTO;
@@ -42,7 +49,7 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
     @Override
     public CollectionModel<ArtistDTO> toCollectionModel(Iterable<? extends ArtistDTO> artistDTOS) {
         CollectionModel<ArtistDTO> newArtistDTOS = super.toCollectionModel(artistDTOS);
-        newArtistDTOS.add(linkTo(methodOn(WebController.class).getAllArtists()).withSelfRel());
+        newArtistDTOS.add(linkTo(methodOn(WebController.class).getAllArtists(null, null, null, null)).withSelfRel());
 
         return newArtistDTOS;
     }

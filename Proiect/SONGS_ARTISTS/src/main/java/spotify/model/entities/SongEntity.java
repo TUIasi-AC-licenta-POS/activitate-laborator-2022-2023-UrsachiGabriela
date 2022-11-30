@@ -7,7 +7,6 @@ import spotify.model.entities.enums.MusicGenre;
 import spotify.model.entities.enums.MusicType;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,19 +34,20 @@ public class SongEntity {
     private MusicType type;
 
     @Nullable
-    @ManyToOne(cascade = {CascadeType.ALL})
+    @ManyToOne
     @JoinColumn(name = "parent")
     private SongEntity parent;
 
 
     //@OneToMany(mappedBy="parent", fetch=FetchType.EAGER)
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "parent")
     private Set<SongEntity> songEntities;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, mappedBy = "songsAlbums")
-    @ElementCollection(targetClass = ArtistEntity.class)
-    private Set<ArtistEntity> artists = new HashSet<ArtistEntity>();
+//    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, mappedBy = "songsAlbums")
+//    @ElementCollection(targetClass = ArtistEntity.class)
+//    private Set<ArtistEntity> artists = new HashSet<ArtistEntity>();
 
 
     public SongEntity() {
@@ -115,13 +115,13 @@ public class SongEntity {
     }
 
 
-    public Set<ArtistEntity> getArtists() {
-        return artists;
-    }
-
-    public void setArtists(Set<ArtistEntity> artists) {
-        this.artists = artists;
-    }
+//    public Set<ArtistEntity> getArtists() {
+//        return artists;
+//    }
+//
+//    public void setArtists(Set<ArtistEntity> artists) {
+//        this.artists = artists;
+//    }
 
     public Set<SongEntity> getSongEntities() {
         return songEntities;

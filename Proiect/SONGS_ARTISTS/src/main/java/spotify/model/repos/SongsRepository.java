@@ -1,12 +1,19 @@
 package spotify.model.repos;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import spotify.model.entities.SongEntity;
-
-import java.util.List;
+import spotify.model.entities.enums.MusicGenre;
 
 public interface SongsRepository extends JpaRepository<SongEntity, Integer> {
-    @Query("select sa from songsAlbums sa where sa.parent=2")
-    List<SongEntity> findByParent(int parent);
+    Page<SongEntity> findAllByName(String name, Pageable pageable);
+
+    Page<SongEntity> findAllByNameContaining(@Param("name") String name, Pageable pageable);
+
+    Page<SongEntity> findAllByGenre(MusicGenre genre, Pageable pageable);
+
+    Page<SongEntity> findAllByYear(Integer year, Pageable pageable);
+
 }

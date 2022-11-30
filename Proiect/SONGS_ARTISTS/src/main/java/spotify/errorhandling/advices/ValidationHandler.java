@@ -1,4 +1,4 @@
-package spotify.exceptions;
+package spotify.errorhandling.advices;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.util.HashMap;
 import java.util.Map;
 
+// for invalid dto request properties
 @ControllerAdvice
 public class ValidationHandler extends ResponseEntityExceptionHandler {
 

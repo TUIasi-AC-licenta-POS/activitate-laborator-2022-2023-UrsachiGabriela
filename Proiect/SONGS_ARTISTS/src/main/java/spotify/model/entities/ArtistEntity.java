@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-
 @Entity(name = "artists")
 @Table(name = "artists")
 public class ArtistEntity {
@@ -17,6 +16,7 @@ public class ArtistEntity {
     @Column(name = "UUID") int id;
 
     @NonNull
+    @Column(unique = true)
     private String name;
     @Nullable
     private boolean active;

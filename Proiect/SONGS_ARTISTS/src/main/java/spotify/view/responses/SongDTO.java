@@ -1,12 +1,13 @@
-package spotify.view.dto.responses;
+package spotify.view.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
+import spotify.model.entities.enums.MusicGenre;
+import spotify.model.entities.enums.MusicType;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @Data
@@ -14,14 +15,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@JsonRootName(value = "artist")
-@Relation(collectionRelation = "artists")
+@JsonRootName(value = "song")
+@Relation(collectionRelation = "songs")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ArtistDTO extends RepresentationModel<ArtistDTO> {
+public class SongDTO extends RepresentationModel<SongDTO> {
     private Integer id;
-
-    @NotBlank(message = "Artist name should not be empty")
     private String name;
-    private Boolean active;
+    private MusicGenre genre;
+    private Integer year;
+    private MusicType type;
+    private Integer parentId;
     private Set<SongDTO> songs;
 }

@@ -1,11 +1,11 @@
-package spotify.view.assemblers;
+package spotify.services.dtoassemblers;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
-import spotify.view.dto.responses.SongDTO;
+import spotify.view.responses.SongDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,12 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(
-                methodOn(WebController.class).getAllSongs())
+                methodOn(WebController.class).getAllSongs(null, null, null, null, null))
                 .withRel("parent"));
 
         songDTO = toSimpleModel(songDTO);
+
+        links.add(linkTo(methodOn(WebController.class).deleteSong(songDTO.getId())).withRel("delete song").withType("DELETE"));
         songDTO.add(links);
 
         return songDTO;
@@ -54,7 +56,7 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
     @Override
     public CollectionModel<SongDTO> toCollectionModel(Iterable<? extends SongDTO> songDTOS) {
         CollectionModel<SongDTO> newSongDTOS = super.toCollectionModel(songDTOS);
-        newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs()).withSelfRel());
+        newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null, null)).withSelfRel());
 
         return newSongDTOS;
     }

@@ -1,10 +1,11 @@
-package spotify.view.dto.requests;
+package spotify.view.requests;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.springframework.hateoas.server.core.Relation;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -18,5 +19,5 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NewSongsForArtistRequest {
     @NotEmpty(message = "Song list should not be empty")
-    private List<Integer> songsId;
+    private List<@Valid Integer> songsId;
 }

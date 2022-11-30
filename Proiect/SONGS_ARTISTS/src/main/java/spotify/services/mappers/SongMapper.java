@@ -1,4 +1,4 @@
-package spotify.mappers;
+package spotify.services.mappers;
 
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -6,7 +6,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import spotify.model.entities.SongEntity;
-import spotify.view.dto.responses.SongDTO;
+import spotify.view.requests.NewSongRequest;
+import spotify.view.responses.SongDTO;
 
 import java.util.Set;
 
@@ -26,6 +27,22 @@ public interface SongMapper {
                 .name(songEntity.getName())
                 .genre(songEntity.getGenre())
                 .build();
+    }
+
+    @Mapping(source = "newSongRequest.parentId", target = "parent.id")
+    default SongEntity toSongEntity(NewSongRequest newSongRequest, SongEntity album) {
+        SongEntity songEntity = new SongEntity();
+
+        songEntity.setName(newSongRequest.getName());
+        songEntity.setGenre(newSongRequest.getGenre());
+        if (newSongRequest.getYear() != null) {
+            songEntity.setYear(newSongRequest.getYear());
+        }
+
+        songEntity.setType(newSongRequest.getType());
+        songEntity.setParent(album);
+
+        return songEntity;
     }
 
     @IterableMapping(qualifiedByName = "completeSong")
