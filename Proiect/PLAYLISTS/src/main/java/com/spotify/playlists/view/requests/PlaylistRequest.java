@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.springframework.hateoas.server.core.Relation;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
@@ -16,7 +17,8 @@ import javax.validation.constraints.Pattern;
 @Relation(collectionRelation = "playlists")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PlaylistRequest {
-    //@NotBlank(message = "Playlist name should not be empty")
+
+    @NotBlank(message = "Playlist name should not be empty")
     @Pattern(regexp = "\\b([a-zA-ZÀ-ÿ][-,a-z. ']+[ ]*)+", message = "Invalid name format")
     private String name;
 }

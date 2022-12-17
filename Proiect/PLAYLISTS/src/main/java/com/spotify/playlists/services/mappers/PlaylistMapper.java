@@ -17,6 +17,7 @@ public interface PlaylistMapper {
     PlaylistResponse toPlaylistDTO(Playlist playlist);
 
     Playlist toPlaylist(PlaylistResponse playlistResponse);
+
     Playlist toPlaylist(PlaylistRequest playlistRequest);
 
     Set<PlaylistResponse> toPlaylistDTOSet(Set<Playlist> playlists);

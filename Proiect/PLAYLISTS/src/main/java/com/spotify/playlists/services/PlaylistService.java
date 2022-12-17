@@ -1,12 +1,11 @@
 package com.spotify.playlists.services;
 
-import com.spotify.playlists.errorhandling.customexceptions.CollectionNotFoundException;
 import com.spotify.playlists.errorhandling.customexceptions.ConflictException;
-import com.spotify.playlists.errorhandling.customexceptions.DocumentNotFoundException;
-import com.spotify.playlists.errorhandling.utils.ErrorMessages;
+import com.spotify.playlists.errorhandling.customexceptions.ResourceNotFoundException;
 import com.spotify.playlists.model.collections.Playlist;
 import com.spotify.playlists.model.collections.Resource;
 import com.spotify.playlists.model.repos.PlaylistRepository;
+import com.spotify.playlists.utils.ErrorMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class PlaylistService {
         String collectionName = String.format("user.%s.playlists", userId);
 
         if (!mongoTemplate.collectionExists(collectionName)) {
-            throw new CollectionNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
+            throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
         }
 
         playlistRepository.setCollectionName(collectionName);
@@ -38,7 +37,7 @@ public class PlaylistService {
 
         List<Playlist> playlists = playlistRepository.findAllByNameContaining(playlistName);
         if (playlists.isEmpty()) {
-            throw new CollectionNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + playlistName);
+            throw new ResourceNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + playlistName);
         }
         return new HashSet<>(playlists);
 
@@ -48,7 +47,7 @@ public class PlaylistService {
         String collectionName = String.format("user.%s.playlists", userId);
 
         if (!mongoTemplate.collectionExists(collectionName)) {
-            throw new CollectionNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
+            throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
         }
 
         playlistRepository.setCollectionName(collectionName);
@@ -56,7 +55,7 @@ public class PlaylistService {
         Optional<Playlist> playlist = playlistRepository.findById(id);
 
         if (!playlist.isPresent()) {
-            throw new CollectionNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id);
+            throw new ResourceNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id);
         }
 
         return playlist.get();
@@ -80,13 +79,13 @@ public class PlaylistService {
         playlistRepository.setCollectionName(collectionName);
 
         if (!mongoTemplate.collectionExists(collectionName)) {
-            throw new CollectionNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
+            throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
         }
 
         Optional<Playlist> playlist = playlistRepository.findById(id);
 
         if (!playlist.isPresent()) {
-            throw new DocumentNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id);
+            throw new ResourceNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id);
         }
 
         playlist.get().getFavSongs().add(resource);

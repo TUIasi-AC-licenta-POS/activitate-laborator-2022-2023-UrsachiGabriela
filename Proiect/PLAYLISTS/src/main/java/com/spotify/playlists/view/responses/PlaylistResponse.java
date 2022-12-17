@@ -6,7 +6,6 @@ import com.spotify.playlists.model.collections.Resource;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
-
 import java.util.Set;
 
 @Data

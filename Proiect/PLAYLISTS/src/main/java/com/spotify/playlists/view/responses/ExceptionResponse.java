@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class ExceptionResponse {
-    String title;
+    String error;
     Integer status;
     String details;
 

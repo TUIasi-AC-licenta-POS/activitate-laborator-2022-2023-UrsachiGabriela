@@ -1,15 +1,22 @@
 package com.spotify.playlists;
 
-import com.spotify.idmclient.wsdl.GetUserInfoResponse;
 import com.spotify.playlists.model.collections.Playlist;
 import com.spotify.playlists.model.collections.Resource;
 import com.spotify.playlists.services.PlaylistService;
+import com.spotify.playlists.services.clients.RestClient;
 import com.spotify.playlists.services.dtoassemblers.PlaylistModelAssembler;
 import com.spotify.playlists.services.mappers.PlaylistMapper;
 import com.spotify.playlists.services.mappers.SongMapper;
+import com.spotify.playlists.view.SongRequestResponse;
 import com.spotify.playlists.view.requests.PlaylistRequest;
-import com.spotify.playlists.view.requests.SongRequest;
+import com.spotify.playlists.view.requests.SimpleSongRequest;
+import com.spotify.playlists.view.responses.ExceptionResponse;
 import com.spotify.playlists.view.responses.PlaylistResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.hateoas.CollectionModel;
@@ -19,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -33,36 +39,25 @@ public class WebController {
     @Autowired
     private PlaylistService playlistService;
 
+    @Autowired
+    private RestClient restClient;
+
     private final PlaylistMapper playlistMapper = PlaylistMapper.INSTANCE;
     private final SongMapper songMapper = SongMapper.INSTANCE;
 
     @Autowired
     private PlaylistModelAssembler playlistModelAssembler;
 
-
-    @GetMapping(value = "/playlistss")
-    public ResponseEntity<Set<Playlist>> getAllPlaylists1() {
-        List<Resource> songs = List.of(
-                new Resource(12, "Fav song1", ""),
-                new Resource(18, "Fav song2", ""),
-                new Resource(19, "Fav song3", "")
-        );
-
-        Playlist playlist = new Playlist("First playlist");
-        playlist.setFavSongs(songs);
-
-        //playlistService.savePlaylist(playlist);
-        playlistService.createPlaylist("1", playlist);
-        // get collection
-        Set<Playlist> playlists = playlistService.getAllPlaylists("1", "a");
-
-        return ResponseEntity.ok().body(playlists);
-    }
-
+    @Operation(summary = "Get all playlists")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found playlists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for query params", content = @Content),
+            })
     @GetMapping(value = "/playlists")
     public ResponseEntity<CollectionModel<PlaylistResponse>> getAllPlaylists(
             @RequestParam(required = false)
-            @Pattern(regexp = "\\b([A-ZÀ-ÿ][-,a-z. ']+[ ]*)+", message = "Invalid name format")
+            @Pattern(regexp = "\\b([a-zA-ZÀ-ÿ][-,a-z. ']+[ ]*)+", message = "Invalid name format")
             String name
     ) {
         // get documents
@@ -77,6 +72,14 @@ public class WebController {
         return ResponseEntity.ok().body(playlistModels);
     }
 
+    @Operation(summary = "Get playlist by id")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Found searched playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
+
+            })
     @GetMapping(value = "/playlists/{id}")
     public ResponseEntity<PlaylistResponse> getPlaylistById(@PathVariable String id) {
         // get document
@@ -91,6 +94,13 @@ public class WebController {
         return ResponseEntity.ok().body(playlistResponse);
     }
 
+    @Operation(summary = "Add new playlist to playlist collection")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "201", description = "Successfully added  new playlist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Mentioned playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+            })
     @PostMapping("/playlists")
     public ResponseEntity<PlaylistResponse> createPlaylist(@Valid @RequestBody PlaylistRequest playlistRequest) {
         // map dto to document
@@ -108,11 +118,17 @@ public class WebController {
         return ResponseEntity.ok().body(playlistResponse);
     }
 
-
-    @PostMapping("/playlists/{id}")
-    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String id, @RequestBody SongRequest songRequest) {
+    @Operation(summary = "Add songs to an existing playlist - from SA module")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+            })
+    @PostMapping("/playlists/{id}/songs")
+    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String id, @RequestBody SongRequestResponse songRequestResponse) {
         // map to resource
-        Resource song = songMapper.toSongResource(songRequest);
+        Resource song = songMapper.toSongResource(songRequestResponse);
 
         // update db
         Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
@@ -126,23 +142,32 @@ public class WebController {
         return ResponseEntity.ok().body(playlistResponse);
     }
 
-//
+    @Operation(summary = "Add songs to an existing playlist")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched playlist not found or given song not existent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+            })
+    @PostMapping("/playlists/{id}")
+    public ResponseEntity<PlaylistResponse> addSongToPlaylist2(@PathVariable String id, @Validated @RequestBody SimpleSongRequest songRequest) {
+        // send request
+        SongRequestResponse songRequestResponse = restClient.getSongById(songRequest.getSongId());
 
+        // map to resource
+        Resource song = songMapper.toSongResource(songRequestResponse);
 
-//    @PostMapping("/{playlistName}")
-//    public ResponseEntity<Playlist> addSongToPlaylist(@PathVariable String playlistName, @RequestBody Resource song){
-//        Playlist updatedPlaylist = playlistService.addSongToPlaylist("1",playlistName,song);
-//
-//        return ResponseEntity.ok().body(updatedPlaylist);
-//    }
+        // update db
+        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
 
-    //    @GetMapping(value = "/playlistss")
-//    public ResponseEntity<String> getUserId() {
-//        IDMClient idmClient = new AnnotationConfigApplicationContext(SoapClientConfig.class).getBean(spotify.services.IDMClient.class);
-//        GetUserInfoResponse response = idmClient.getUserInfo("Ana");
-//
-//        return ResponseEntity.ok().body(response.toString());
-//    }
+        // map to dto
+        PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);
+
+        // add links
+        playlistModelAssembler.toModel(playlistResponse);
+
+        return ResponseEntity.ok().body(playlistResponse);
+    }
 
 
     @GetMapping(value = "/1")

@@ -1,7 +1,7 @@
 package com.spotify.playlists.model.repos;
 
 
-public class CustomRepositoryImpl implements CustomRepository{
+public class CustomRepositoryImpl implements CustomRepository {
     private static String collectionName;
 
     @Override
