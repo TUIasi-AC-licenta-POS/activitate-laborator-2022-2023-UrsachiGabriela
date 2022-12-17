@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import spotify.model.entities.SongEntity;
-import spotify.model.entities.enums.MusicGenre;
+import spotify.utils.enums.MusicGenre;
 
 public interface SongsRepository extends JpaRepository<SongEntity, Integer> {
     Page<SongEntity> findAllByName(String name, Pageable pageable);

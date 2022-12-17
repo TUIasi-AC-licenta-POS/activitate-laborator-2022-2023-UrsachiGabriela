@@ -1,3 +1,3 @@
-package spotify.model.entities.enums;
+package spotify.utils.enums;
 
 public enum MusicType {ALBUM, SONG, SINGLE}

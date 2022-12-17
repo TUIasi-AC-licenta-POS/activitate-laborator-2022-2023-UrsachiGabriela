@@ -8,11 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import spotify.errorhandling.customexceptions.ConflictException;
 import spotify.errorhandling.customexceptions.EntityNotFoundException;
-import spotify.errorhandling.utils.ErrorMessages;
 import spotify.model.entities.SongEntity;
-import spotify.model.entities.enums.MusicGenre;
-import spotify.model.entities.enums.MusicType;
 import spotify.model.repos.SongsRepository;
+import spotify.utils.ErrorMessages;
+import spotify.utils.enums.MusicGenre;
+import spotify.utils.enums.MusicType;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class SongsService {
     public SongEntity getSongById(int sid) {
         Optional<SongEntity> songEntity = songsRepository.findById(sid);
 
-        if (songEntity.isEmpty()) {
+        if (!songEntity.isPresent()) {
             throw new EntityNotFoundException(ErrorMessages.SONG_NOT_FOUND + sid);
         }
         return songEntity.get();

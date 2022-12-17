@@ -5,8 +5,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
-import spotify.view.responses.ArtistDTO;
-import spotify.view.responses.SongDTO;
+import spotify.view.responses.ArtistResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,51 +14,51 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<ArtistDTO, ArtistDTO> {
+public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<ArtistResponse, ArtistResponse> {
     public ArtistModelAssembler() {
-        super(WebController.class, ArtistDTO.class);
+        super(WebController.class, ArtistResponse.class);
     }
 
     @Override
-    public ArtistDTO toModel(ArtistDTO artistDTO) {
+    public ArtistResponse toModel(ArtistResponse artistResponse) {
         List<Link> links = new ArrayList<>();
 
-        artistDTO = toSimpleModel(artistDTO);
+        artistResponse = toSimpleModel(artistResponse);
 
         links.add(linkTo(
                 methodOn(WebController.class).getAllArtists(null, null, null, null))
                 .withRel("parent"));
 
 
-        links.add(linkTo(methodOn(WebController.class).assignSongsToArtist(artistDTO.getId(), null)).withRel("assign songs").withType("POST"));
-        links.add(linkTo(methodOn(WebController.class).deleteArtist(artistDTO.getId())).withRel("delete artist").withType("DELETE"));
+        links.add(linkTo(methodOn(WebController.class).assignSongsToArtist(artistResponse.getId(), null)).withRel("assign songs").withType("POST"));
+        links.add(linkTo(methodOn(WebController.class).deleteArtist(artistResponse.getId())).withRel("delete artist").withType("DELETE"));
 
-        if (artistDTO.getHasSongs()) {
+        if (artistResponse.getHasSongs()) {
             links.add(linkTo(
-                    methodOn(WebController.class).getAllSongsForGivenArtist(artistDTO.getId()))
+                    methodOn(WebController.class).getAllSongsForGivenArtist(artistResponse.getId()))
                     .withRel("songs"));
         }
 
-        artistDTO.add(links);
+        artistResponse.add(links);
 
-        return artistDTO;
+        return artistResponse;
     }
 
-    public ArtistDTO toSimpleModel(ArtistDTO artistDTO) {
+    public ArtistResponse toSimpleModel(ArtistResponse artistResponse) {
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(WebController.class)
-                .getArtistById(artistDTO.getId()))
+                .getArtistById(artistResponse.getId()))
                 .withSelfRel());
 
-        artistDTO.add(links);
+        artistResponse.add(links);
 
-        return artistDTO;
+        return artistResponse;
     }
 
     @Override
-    public CollectionModel<ArtistDTO> toCollectionModel(Iterable<? extends ArtistDTO> artistDTOS) {
-        CollectionModel<ArtistDTO> newArtistDTOS = super.toCollectionModel(artistDTOS);
+    public CollectionModel<ArtistResponse> toCollectionModel(Iterable<? extends ArtistResponse> artistDTOS) {
+        CollectionModel<ArtistResponse> newArtistDTOS = super.toCollectionModel(artistDTOS);
         newArtistDTOS.add(linkTo(methodOn(WebController.class).getAllArtists(null, null, null, null)).withSelfRel());
 
         return newArtistDTOS;

@@ -7,7 +7,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import spotify.model.entities.ArtistEntity;
 import spotify.view.requests.NewArtistRequest;
-import spotify.view.responses.ArtistDTO;
+import spotify.view.responses.ArtistResponse;
 
 import java.util.Set;
 
@@ -18,11 +18,11 @@ public interface ArtistMapper {
     @Named("completeArtistMapper")
     @Mapping(target = "songs", qualifiedByName = "simpleSongDtoSet")
     @Mapping(target = "hasSongs", expression = "java(artistEntity.getSongs().isEmpty() ? false : true)")
-    ArtistDTO toCompleteArtistDto(ArtistEntity artistEntity);
+    ArtistResponse toCompleteArtistDto(ArtistEntity artistEntity);
 
     @Named("artistWithSongs")
-    default ArtistDTO toArtistWithSongsDto(ArtistEntity artistEntity) {
-        return ArtistDTO.builder()
+    default ArtistResponse toArtistWithSongsDto(ArtistEntity artistEntity) {
+        return ArtistResponse.builder()
                 .id(artistEntity.getId())
                 .hasSongs(!artistEntity.getSongs().isEmpty())
                 .songs(SongMapper.INSTANCE.toSimpleSongDTOSet(artistEntity.getSongs()))
@@ -30,8 +30,8 @@ public interface ArtistMapper {
     }
 
     @Named("artistWithoutSongs")
-    default ArtistDTO toArtistWithoutSongsDto(ArtistEntity artistEntity) {
-        return ArtistDTO.builder()
+    default ArtistResponse toArtistWithoutSongsDto(ArtistEntity artistEntity) {
+        return ArtistResponse.builder()
                 .id(artistEntity.getId())
                 .name(artistEntity.getName())
                 .active(artistEntity.isActive())
@@ -40,26 +40,26 @@ public interface ArtistMapper {
     }
 
     @Named("artistWithName")
-    default ArtistDTO toArtistWithName(ArtistEntity artistEntity) {
-        return ArtistDTO.builder()
+    default ArtistResponse toArtistWithName(ArtistEntity artistEntity) {
+        return ArtistResponse.builder()
                 .id(artistEntity.getId())
                 .name(artistEntity.getName())
                 .build();
     }
 
-    ArtistEntity toArtistEntity(ArtistDTO artistDTO);
+    ArtistEntity toArtistEntity(ArtistResponse artistResponse);
 
     ArtistEntity toArtistEntity(NewArtistRequest newArtistRequest);
 
     @IterableMapping(qualifiedByName = "completeArtistMapper")
-    Set<ArtistDTO> toCompleteArtistDTOSet(Set<ArtistEntity> artistEntities);
+    Set<ArtistResponse> toCompleteArtistDTOSet(Set<ArtistEntity> artistEntities);
 
     @IterableMapping(qualifiedByName = "artistWithoutSongs")
-    Set<ArtistDTO> toArtistDTOWithoutSongsSet(Set<ArtistEntity> artistEntities);
+    Set<ArtistResponse> toArtistDTOWithoutSongsSet(Set<ArtistEntity> artistEntities);
 
     @IterableMapping(qualifiedByName = "artistWithSongs")
-    Set<ArtistDTO> toArtistDTOWithSongsSet(Set<ArtistEntity> artistEntities);
+    Set<ArtistResponse> toArtistDTOWithSongsSet(Set<ArtistEntity> artistEntities);
 
     @IterableMapping(qualifiedByName = "artistWithName")
-    Set<ArtistDTO> toArtistWithName(Set<ArtistEntity> artistEntities);
+    Set<ArtistResponse> toArtistWithName(Set<ArtistEntity> artistEntities);
 }

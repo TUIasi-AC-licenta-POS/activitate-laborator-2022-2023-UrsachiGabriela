@@ -1,11 +1,14 @@
 package spotify.view.requests;
 
 import lombok.*;
-import spotify.model.entities.enums.MusicGenre;
-import spotify.model.entities.enums.MusicType;
+import spotify.utils.enums.MusicGenre;
+import spotify.utils.enums.MusicType;
 
 import javax.validation.Valid;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data

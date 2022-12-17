@@ -7,10 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import spotify.errorhandling.customexceptions.ConflictException;
 import spotify.errorhandling.customexceptions.EntityNotFoundException;
-import spotify.errorhandling.utils.ErrorMessages;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
 import spotify.model.repos.ArtistsRepository;
+import spotify.utils.ErrorMessages;
 
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ArtistsService {
     public ArtistEntity getArtistById(int uuid) {
         Optional<ArtistEntity> artistEntity = artistsRepository.findById(uuid);
 
-        if (artistEntity.isEmpty()) {
+        if (!artistEntity.isPresent()) {
             throw new EntityNotFoundException(ErrorMessages.ARTIST_NOT_FOUND + uuid);
         }
 
@@ -104,7 +104,7 @@ public class ArtistsService {
         }
     }
 
-    public Set<ArtistEntity> getArtistForGivenSong(int songId){
+    public Set<ArtistEntity> getArtistForGivenSong(int songId) {
         return new HashSet<>(artistsRepository.artistsForGivenSong(songId));
     }
 

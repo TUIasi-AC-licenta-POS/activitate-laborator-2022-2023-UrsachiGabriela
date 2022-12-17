@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
@@ -13,10 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import spotify.errorhandling.utils.ExceptionMessage;
+import spotify.IDMClient;
+import spotify.IDMClientConfig;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
-import spotify.model.entities.enums.MusicGenre;
 import spotify.services.dataprocessors.ArtistsService;
 import spotify.services.dataprocessors.SongsService;
 import spotify.services.dtoassemblers.ArtistModelAssembler;
@@ -25,17 +26,18 @@ import spotify.services.mappers.ArtistMapper;
 import spotify.services.mappers.SongMapper;
 import spotify.services.validators.CreateValidator;
 import spotify.services.validators.FilterValidator;
+import spotify.utils.enums.MusicGenre;
 import spotify.view.requests.NewArtistRequest;
 import spotify.view.requests.NewSongRequest;
 import spotify.view.requests.NewSongsForArtistRequest;
-import spotify.view.responses.ArtistDTO;
-import spotify.view.responses.SongDTO;
+import spotify.view.responses.ArtistResponse;
+import spotify.view.responses.ExceptionResponse;
+import spotify.view.responses.SongResponse;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -69,10 +71,10 @@ public class WebController {
     private final SongMapper songMapper = SongMapper.INSTANCE;
 
     @Autowired
-    private PagedResourcesAssembler<SongDTO> songDTOPagedResourcesAssembler;
+    private PagedResourcesAssembler<SongResponse> songDTOPagedResourcesAssembler;
 
     @Autowired
-    private PagedResourcesAssembler<ArtistDTO> artistDTOPagedResourcesAssembler;
+    private PagedResourcesAssembler<ArtistResponse> artistDTOPagedResourcesAssembler;
 
 
 //    @GetMapping("/api/songcollection/artists")
@@ -92,13 +94,12 @@ public class WebController {
     @Operation(summary = "Get all artists")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found searched artists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
-                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
-                    @ApiResponse(responseCode = "422", description = "Semantically erroneous query params", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "200", description = "Found searched artists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content)
 
             })
     @GetMapping(value = "/api/songcollection/artists")
-    public ResponseEntity<PagedModel<ArtistDTO>> getAllArtists(
+    public ResponseEntity<PagedModel<ArtistResponse>> getAllArtists(
             @RequestParam(required = false)
             @Min(0) Integer page,
 
@@ -118,10 +119,10 @@ public class WebController {
         Page<ArtistEntity> artistEntities = artistsService.getPageableArtists(page, size, name, match);
 
         // map to dto
-        Page<ArtistDTO> artistDTOPage = artistEntities.map(artistMapper::toArtistWithoutSongsDto);
+        Page<ArtistResponse> artistDTOPage = artistEntities.map(artistMapper::toArtistWithoutSongsDto);
 
         // add links
-        PagedModel<ArtistDTO> artistModels = artistDTOPagedResourcesAssembler.toModel(artistDTOPage, artistModelAssembler);
+        PagedModel<ArtistResponse> artistModels = artistDTOPagedResourcesAssembler.toModel(artistDTOPage, artistModelAssembler);
 
         return ResponseEntity.ok().body(artistModels);
     }
@@ -134,86 +135,84 @@ public class WebController {
     @Operation(summary = "Get artist by its unique identifier")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found searched artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
-                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "200", description = "Found searched artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
+                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
 
             })
     @GetMapping("/api/songcollection/artists/{uuid}")
-    public ResponseEntity<ArtistDTO> getArtistById(@PathVariable int uuid) {
+    public ResponseEntity<ArtistResponse> getArtistById(@PathVariable int uuid) {
         // query database
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
         // map to dto
-        ArtistDTO artistDTO = artistMapper.toArtistWithoutSongsDto(artistEntity);
+        ArtistResponse artistResponse = artistMapper.toArtistWithoutSongsDto(artistEntity);
 
         // add links
-        artistModelAssembler.toModel(artistDTO);
+        artistModelAssembler.toModel(artistResponse);
 
-        return ResponseEntity.ok().body(artistDTO);
+        return ResponseEntity.ok().body(artistResponse);
     }
 
     @Operation(summary = "Get songs for artist identified by uuid")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
-                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "200", description = "Found artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
+                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
 
             })
     @GetMapping("/api/songcollection/artists/{uuid}/songs")
-    public ResponseEntity<ArtistDTO> getAllSongsForGivenArtist(@PathVariable int uuid) {
+    public ResponseEntity<ArtistResponse> getAllSongsForGivenArtist(@PathVariable int uuid) {
         // query db
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
         // map to dto
-        ArtistDTO artistDTO = artistMapper.toArtistWithSongsDto(artistEntity);
+        ArtistResponse artistResponse = artistMapper.toArtistWithSongsDto(artistEntity);
 
         // add links
-        artistModelAssembler.toModel(artistDTO);
+        artistModelAssembler.toModel(artistResponse);
 
-        for (SongDTO songDto : artistDTO.getSongs()) {
-            songDto = songModelAssembler.toSimpleModel(songDto);
+        for (SongResponse songResponse : artistResponse.getSongs()) {
+            songResponse = songModelAssembler.toSimpleModel(songResponse);
         }
 
-        return ResponseEntity.ok().body(artistDTO);
+        return ResponseEntity.ok().body(artistResponse);
     }
 
     @Operation(summary = "Get artists for song identified by id")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found song by id", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
-                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "200", description = "Found song by id", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
+                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
 
             })
     @GetMapping("/api/songcollection/songs/{id}/artists")
-    public ResponseEntity<Set<ArtistDTO>> getAllArtistsForGivenSong(@PathVariable int id) {
+    public ResponseEntity<Set<ArtistResponse>> getAllArtistsForGivenSong(@PathVariable int id) {
         // query db
         SongEntity songEntity = songsService.getSongById(id);
         Set<ArtistEntity> artistEntities = artistsService.getArtistForGivenSong(id);
 
         // map to dto
-        Set<ArtistDTO> artistDTOS = artistMapper.toArtistWithName(artistEntities);
+        Set<ArtistResponse> artistResponses = artistMapper.toArtistWithName(artistEntities);
 
         // add links
-        artistDTOS.forEach(artistDTO -> artistModelAssembler.toSimpleModel(artistDTO));
+        artistResponses.forEach(artistDTO -> artistModelAssembler.toSimpleModel(artistDTO));
 
-        return ResponseEntity.ok().body(artistDTOS);
+        return ResponseEntity.ok().body(artistResponses);
     }
 
     @Operation(summary = "Create new artist or replace an existing one")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "201", description = "Successfully created a new artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
+                    @ApiResponse(responseCode = "201", description = "Successfully created a new artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "204", description = "Successfully replaced an existing resource with given uuid", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-                    @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-                    @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @PutMapping("/api/songcollection/artists/{uuid}")
-    public ResponseEntity<ArtistDTO> createNewArtist(@PathVariable int uuid, @Valid @RequestBody NewArtistRequest newArtist) {
+    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid, @Valid @RequestBody NewArtistRequest newArtist) {
         // query db to decide which of create or replace operation is needed
         boolean isAlreadyExistent = artistsService.itExistsArtist(uuid);
 
@@ -225,40 +224,40 @@ public class WebController {
         ArtistEntity savedEntity = artistsService.createNewArtist(artistEntity);
 
         // map created/replaced entity to dto
-        ArtistDTO artistDTO = artistMapper.toCompleteArtistDto(savedEntity);
+        ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(savedEntity);
 
         // add links
-        artistModelAssembler.toModel(artistDTO);
+        artistModelAssembler.toModel(artistResponse);
 
         // decide response code
         if (isAlreadyExistent)
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(artistDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(artistResponse);
     }
 
     @Operation(summary = "Delete  artist identified by uuid")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Successfully deleted artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
+                    @ApiResponse(responseCode = "200", description = "Successfully deleted artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/api/songcollection/artists/{uuid}")
-    public ResponseEntity<ArtistDTO> deleteArtist(@PathVariable int uuid) {
+    public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable int uuid) {
         // query db for an entity with given identifier
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
         // map entity to deleted dto
-        ArtistDTO artistDTO = artistMapper.toCompleteArtistDto(artistEntity);
+        ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(artistEntity);
 
         // add links
-        artistModelAssembler.toModel(artistDTO);
+        artistModelAssembler.toModel(artistResponse);
 
         // delete entity
         artistsService.deleteArtist(artistEntity); // Se vor sterge si intrarile in tabela de join care corespund artistului dat, dar piesele raman
 
-        return ResponseEntity.status(HttpStatus.OK).body(artistDTO); // reprezentarea resursei inainte de a fi stearsa
+        return ResponseEntity.status(HttpStatus.OK).body(artistResponse); // reprezentarea resursei inainte de a fi stearsa
     }
 
     // fie adaug songs pentru un artist dupa ce am introdus song-ul
@@ -266,14 +265,12 @@ public class WebController {
     @Operation(summary = "Assign songs to an artist")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Successfully updated join table", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistDTO.class))}),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-                    @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-
+                    @ApiResponse(responseCode = "200", description = "Successfully updated join table", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
             })
     @PostMapping("/api/songcollection/artists/{uuid}/songs")
-    public ResponseEntity<ArtistDTO> assignSongsToArtist(@PathVariable int uuid, @Valid @RequestBody NewSongsForArtistRequest request) {
+    public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid, @Valid @RequestBody NewSongsForArtistRequest request) {
         // query db for songs and artist
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
         Set<SongEntity> songEntities = new HashSet<>();
@@ -285,12 +282,12 @@ public class WebController {
         ArtistEntity updatedArtist = artistsService.addSongsToArtist(artistEntity, songEntities);
 
         // map entity to dto
-        ArtistDTO artistDTO = artistMapper.toCompleteArtistDto(updatedArtist);
+        ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(updatedArtist);
 
         // add links
-        artistModelAssembler.toModel(artistDTO);
+        artistModelAssembler.toModel(artistResponse);
 
-        return ResponseEntity.status(HttpStatus.OK).body(artistDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(artistResponse);
     }
 
     /**
@@ -299,13 +296,11 @@ public class WebController {
     @Operation(summary = "Get all songs")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found searched songs", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongDTO.class))}),
-                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
-                    @ApiResponse(responseCode = "422", description = "Semantically erroneous query params", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class)))
-
+                    @ApiResponse(responseCode = "200", description = "Found searched songs", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content)
             })
     @GetMapping("/api/songcollection/songs")
-    public ResponseEntity<PagedModel<SongDTO>> getAllSongs(
+    public ResponseEntity<PagedModel<SongResponse>> getAllSongs(
             @RequestParam(required = false)
             @Min(0) Integer page,
 
@@ -343,13 +338,13 @@ public class WebController {
         }
 
         // map entities to dtos
-        Page<SongDTO> songDTOPage = songEntities.map(songMapper::toCompleteSongDto);
+        Page<SongResponse> songDTOPage = songEntities.map(songMapper::toCompleteSongDto);
 
         // add links
-        for (SongDTO songDto : songDTOPage) {
-            songDto.getSongs().forEach(s -> songModelAssembler.toSimpleModel(s));
+        for (SongResponse songResponse : songDTOPage) {
+            songResponse.getSongs().forEach(s -> songModelAssembler.toSimpleModel(s));
         }
-        PagedModel<SongDTO> songModels = songDTOPagedResourcesAssembler.toModel(songDTOPage, songModelAssembler);
+        PagedModel<SongResponse> songModels = songDTOPagedResourcesAssembler.toModel(songDTOPage, songModelAssembler);
 
         return ResponseEntity.ok().body(songModels);
     }
@@ -362,41 +357,40 @@ public class WebController {
     @Operation(summary = "Get song by its identifier")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found searched song", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongDTO.class))}),
-                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "200", description = "Found searched song", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
+                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
 
             })
     @GetMapping("/api/songcollection/songs/{id}")
-    public ResponseEntity<SongDTO> getSongById(@PathVariable int id) {
+    public ResponseEntity<SongResponse> getSongById(@PathVariable int id) {
         // query database
         SongEntity songEntity = songsService.getSongById(id);
 
         // map entity to dto
-        SongDTO songDTO = songMapper.toCompleteSongDto(songEntity);
+        SongResponse songResponse = songMapper.toCompleteSongDto(songEntity);
 
         // add links
-        songModelAssembler.toModel(songDTO);
-        for (SongDTO innerSong : songDTO.getSongs()) {
+        songModelAssembler.toModel(songResponse);
+        for (SongResponse innerSong : songResponse.getSongs()) {
             songModelAssembler.toSimpleModel(innerSong);
         }
 
-        return ResponseEntity.ok().body(songDTO);
+        return ResponseEntity.ok().body(songResponse);
     }
-
 
 
     @Operation(summary = "Add new song to song resources")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongDTO.class))}),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Mentioned album not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-                    @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Mentioned album not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
 
             })
     @PostMapping("/api/songcollection/songs")
-    public ResponseEntity<SongDTO> addNewSong(@Valid @RequestBody NewSongRequest newSong) {
+    public ResponseEntity<SongResponse> addNewSong(@Valid @RequestBody NewSongRequest newSong) {
         // query db for given song and its album
         SongEntity album = newSong.getParentId() != null ? songsService.getSongById(newSong.getParentId()) : null;
         SongEntity songEntity = songMapper.toSongEntity(newSong, album);
@@ -414,37 +408,49 @@ public class WebController {
         }
 
         // map entity to dto
-        SongDTO songDTO = songMapper.toCompleteSongDto(createdEntity);
+        SongResponse songResponse = songMapper.toCompleteSongDto(createdEntity);
 
         // add links
-        songModelAssembler.toModel(songDTO);
+        songModelAssembler.toModel(songResponse);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(songDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(songResponse);
     }
 
     @Operation(summary = "Delete song resource identified by id")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Successfully deleted song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongDTO.class))}),
+                    @ApiResponse(responseCode = "200", description = "Successfully deleted song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
-                    @ApiResponse(responseCode = "409", description = "Conflict: cannot remove album without removing all its songs", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionMessage.class))),
+                    @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Conflict: cannot remove album without removing all its songs", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/api/songcollection/songs/{id}")
-    public ResponseEntity<SongDTO> deleteSong(@PathVariable int id) {
+    public ResponseEntity<SongResponse> deleteSong(@PathVariable int id) {
         // query db
         SongEntity songEntity = songsService.getSongById(id);
 
         // map entity to dto
-        SongDTO songDTO = songMapper.toCompleteSongDto(songEntity);
+        SongResponse songResponse = songMapper.toCompleteSongDto(songEntity);
 
         // add links
-        songModelAssembler.toModel(songDTO);
+        songModelAssembler.toModel(songResponse);
 
         // delete song from songs table and also from join table
         artistsService.removeSongFromArtists(id);
         songsService.deleteSong(songEntity);
 
-        return ResponseEntity.status(HttpStatus.OK).body(songDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(songResponse);
+    }
+
+
+    @GetMapping(value = "/1")
+    public ResponseEntity<String> getUserId() {
+        IDMClient idmClientService = new AnnotationConfigApplicationContext(IDMClientConfig.class).getBean(IDMClient.class);
+
+        //idmClientService.setDefaultUri("http://127.0.0.1:8000");
+
+        String name = idmClientService.getUserInfoResponse("Ana");
+        return ResponseEntity.ok().body(name);
+
     }
 }

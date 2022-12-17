@@ -1,15 +1,14 @@
-package spotify.errorhandling.utils;
+package spotify.view.responses;
 
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class ExceptionMessage {
-    String title;
+public class ExceptionResponse {
+    String error;
     Integer status;
     String details;
 

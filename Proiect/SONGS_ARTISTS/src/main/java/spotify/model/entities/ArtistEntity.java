@@ -4,7 +4,7 @@ package spotify.model.entities;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import spotify.errorhandling.customexceptions.ConflictException;
-import spotify.errorhandling.utils.ErrorMessages;
+import spotify.utils.ErrorMessages;
 
 import javax.persistence.*;
 import java.util.HashSet;

@@ -7,7 +7,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import spotify.model.entities.SongEntity;
 import spotify.view.requests.NewSongRequest;
-import spotify.view.responses.SongDTO;
+import spotify.view.responses.SongResponse;
 
 import java.util.Set;
 
@@ -18,11 +18,11 @@ public interface SongMapper {
     @Named("completeSong")
     @Mapping(source = "songEntity.parent.id", target = "parentId")
     @Mapping(source = "songEntity.songEntities", target = "songs", qualifiedByName = "simpleSongDtoSet")
-    SongDTO toCompleteSongDto(SongEntity songEntity);
+    SongResponse toCompleteSongDto(SongEntity songEntity);
 
     @Named("simpleSong")
-    default SongDTO toSimpleSongDto(SongEntity songEntity) {
-        return SongDTO.builder()
+    default SongResponse toSimpleSongDto(SongEntity songEntity) {
+        return SongResponse.builder()
                 .id(songEntity.getId())
                 .name(songEntity.getName())
                 //.genre(songEntity.getGenre())
@@ -46,9 +46,9 @@ public interface SongMapper {
     }
 
     @IterableMapping(qualifiedByName = "completeSong")
-    Set<SongDTO> toCompleteSongDTOSet(Set<SongEntity> songEntities);
+    Set<SongResponse> toCompleteSongDTOSet(Set<SongEntity> songEntities);
 
     @Named("simpleSongDtoSet")
     @IterableMapping(qualifiedByName = "simpleSong")
-    Set<SongDTO> toSimpleSongDTOSet(Set<SongEntity> songEntities);
+    Set<SongResponse> toSimpleSongDTOSet(Set<SongEntity> songEntities);
 }

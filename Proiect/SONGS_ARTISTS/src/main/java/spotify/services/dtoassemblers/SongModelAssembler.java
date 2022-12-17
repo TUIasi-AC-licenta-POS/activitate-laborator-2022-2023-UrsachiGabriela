@@ -5,7 +5,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
-import spotify.view.responses.SongDTO;
+import spotify.view.responses.SongResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,48 +14,48 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class SongModelAssembler extends RepresentationModelAssemblerSupport<SongDTO, SongDTO> {
+public class SongModelAssembler extends RepresentationModelAssemblerSupport<SongResponse, SongResponse> {
     public SongModelAssembler() {
-        super(WebController.class, SongDTO.class);
+        super(WebController.class, SongResponse.class);
     }
 
     @Override
-    public SongDTO toModel(SongDTO songDTO) {
+    public SongResponse toModel(SongResponse songResponse) {
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(
                 methodOn(WebController.class).getAllSongs(null, null, null, null, null))
                 .withRel("parent"));
 
-        songDTO = toSimpleModel(songDTO);
+        songResponse = toSimpleModel(songResponse);
 
-        links.add(linkTo(methodOn(WebController.class).deleteSong(songDTO.getId())).withRel("delete song").withType("DELETE"));
-        songDTO.add(links);
+        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId())).withRel("delete song").withType("DELETE"));
+        songResponse.add(links);
 
-        return songDTO;
+        return songResponse;
     }
 
-    public SongDTO toSimpleModel(SongDTO songDTO) {
+    public SongResponse toSimpleModel(SongResponse songResponse) {
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(WebController.class)
-                .getSongById(songDTO.getId()))
+                .getSongById(songResponse.getId()))
                 .withSelfRel());
 
-        if (songDTO.getParentId() != null) {
+        if (songResponse.getParentId() != null) {
             links.add(linkTo(methodOn(WebController.class)
-                    .getSongById(songDTO.getParentId()))
+                    .getSongById(songResponse.getParentId()))
                     .withRel("album"));
         }
 
-        songDTO.add(links);
+        songResponse.add(links);
 
-        return songDTO;
+        return songResponse;
     }
 
     @Override
-    public CollectionModel<SongDTO> toCollectionModel(Iterable<? extends SongDTO> songDTOS) {
-        CollectionModel<SongDTO> newSongDTOS = super.toCollectionModel(songDTOS);
+    public CollectionModel<SongResponse> toCollectionModel(Iterable<? extends SongResponse> songDTOS) {
+        CollectionModel<SongResponse> newSongDTOS = super.toCollectionModel(songDTOS);
         newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null, null)).withSelfRel());
 
         return newSongDTOS;

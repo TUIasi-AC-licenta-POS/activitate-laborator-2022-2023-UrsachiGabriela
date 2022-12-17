@@ -17,7 +17,7 @@ import java.util.Set;
 @JsonRootName(value = "artist")
 @Relation(collectionRelation = "artists")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ArtistDTO extends RepresentationModel<ArtistDTO> {
+public class ArtistResponse extends RepresentationModel<ArtistResponse> {
     private Integer id;
 
     @NotBlank(message = "Artist name should not be empty")
@@ -25,7 +25,7 @@ public class ArtistDTO extends RepresentationModel<ArtistDTO> {
 
     private Boolean active;
 
-    private Set<SongDTO> songs;
+    private Set<SongResponse> songs;
 
     private Boolean hasSongs = Boolean.FALSE;
 }

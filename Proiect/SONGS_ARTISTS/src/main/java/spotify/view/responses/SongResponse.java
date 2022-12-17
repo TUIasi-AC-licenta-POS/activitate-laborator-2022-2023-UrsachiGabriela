@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
-import spotify.model.entities.enums.MusicGenre;
-import spotify.model.entities.enums.MusicType;
+import spotify.utils.enums.MusicGenre;
+import spotify.utils.enums.MusicType;
 
 import java.util.Set;
 
@@ -18,12 +18,12 @@ import java.util.Set;
 @JsonRootName(value = "song")
 @Relation(collectionRelation = "songs")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SongDTO extends RepresentationModel<SongDTO> {
+public class SongResponse extends RepresentationModel<SongResponse> {
     private Integer id;
     private String name;
     private MusicGenre genre;
     private Integer year;
     private MusicType type;
     private Integer parentId;
-    private Set<SongDTO> songs;
+    private Set<SongResponse> songs;
 }

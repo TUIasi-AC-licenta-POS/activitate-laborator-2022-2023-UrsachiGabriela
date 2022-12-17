@@ -3,8 +3,8 @@ package spotify.model.entities;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import spotify.model.entities.enums.MusicGenre;
-import spotify.model.entities.enums.MusicType;
+import spotify.utils.enums.MusicGenre;
+import spotify.utils.enums.MusicType;
 
 import javax.persistence.*;
 import java.util.Objects;
