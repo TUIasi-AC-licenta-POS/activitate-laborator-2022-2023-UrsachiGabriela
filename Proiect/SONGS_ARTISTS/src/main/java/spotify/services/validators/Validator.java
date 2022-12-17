@@ -1,4 +1,4 @@
-package spotify.services.validators.entity;
+package spotify.services.validators;
 
 /**
  * Validations based on resource representation/properties

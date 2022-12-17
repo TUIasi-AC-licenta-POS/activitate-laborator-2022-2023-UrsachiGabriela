@@ -6,6 +6,7 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
 import spotify.view.responses.ArtistDTO;
+import spotify.view.responses.SongDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,7 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
     public ArtistDTO toModel(ArtistDTO artistDTO) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(WebController.class)
-                .getArtistById(artistDTO.getId()))
-                .withSelfRel());
+        artistDTO = toSimpleModel(artistDTO);
 
         links.add(linkTo(
                 methodOn(WebController.class).getAllArtists(null, null, null, null))
@@ -40,6 +39,18 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
                     methodOn(WebController.class).getAllSongsForGivenArtist(artistDTO.getId()))
                     .withRel("songs"));
         }
+
+        artistDTO.add(links);
+
+        return artistDTO;
+    }
+
+    public ArtistDTO toSimpleModel(ArtistDTO artistDTO) {
+        List<Link> links = new ArrayList<>();
+
+        links.add(linkTo(methodOn(WebController.class)
+                .getArtistById(artistDTO.getId()))
+                .withSelfRel());
 
         artistDTO.add(links);
 

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import spotify.errorhandling.customexceptions.ConflictException;
 import spotify.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.errorhandling.utils.ErrorMessages;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // SQL constraints validation is part of this service
-@Service
+@Component
 public class ArtistsService {
     @Autowired
     private ArtistsRepository artistsRepository;
@@ -102,6 +102,10 @@ public class ArtistsService {
             a.setSongs(remainedSongs);
             artistsRepository.save(a);
         }
+    }
+
+    public Set<ArtistEntity> getArtistForGivenSong(int songId){
+        return new HashSet<>(artistsRepository.artistsForGivenSong(songId));
     }
 
 }

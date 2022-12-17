@@ -3,6 +3,8 @@ package spotify.model.entities;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import spotify.errorhandling.customexceptions.ConflictException;
+import spotify.errorhandling.utils.ErrorMessages;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -75,6 +77,13 @@ public class ArtistEntity {
 
     public void setSongs(Set<SongEntity> songs) {
         this.songs = songs;
+    }
+
+    @PreRemove
+    public void checkSongAssociationBeforeRemoval() {
+        if (!this.songs.isEmpty()) {
+            throw new ConflictException(ErrorMessages.PARENT_REMOVAL);
+        }
     }
 
     @Override

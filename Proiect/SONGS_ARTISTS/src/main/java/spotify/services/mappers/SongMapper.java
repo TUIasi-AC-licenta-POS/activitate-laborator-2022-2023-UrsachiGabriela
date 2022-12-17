@@ -25,7 +25,7 @@ public interface SongMapper {
         return SongDTO.builder()
                 .id(songEntity.getId())
                 .name(songEntity.getName())
-                .genre(songEntity.getGenre())
+                //.genre(songEntity.getGenre())
                 .build();
     }
 

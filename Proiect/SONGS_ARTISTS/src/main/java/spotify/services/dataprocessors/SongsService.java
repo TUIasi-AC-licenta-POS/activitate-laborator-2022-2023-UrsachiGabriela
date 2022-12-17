@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import spotify.errorhandling.customexceptions.ConflictException;
 import spotify.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.errorhandling.utils.ErrorMessages;
@@ -18,7 +18,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-@Service
+@Component
 public class SongsService {
 
     @Autowired

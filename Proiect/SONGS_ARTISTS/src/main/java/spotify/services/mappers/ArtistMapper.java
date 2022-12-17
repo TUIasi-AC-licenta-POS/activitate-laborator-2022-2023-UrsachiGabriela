@@ -42,6 +42,7 @@ public interface ArtistMapper {
     @Named("artistWithName")
     default ArtistDTO toArtistWithName(ArtistEntity artistEntity) {
         return ArtistDTO.builder()
+                .id(artistEntity.getId())
                 .name(artistEntity.getName())
                 .build();
     }
