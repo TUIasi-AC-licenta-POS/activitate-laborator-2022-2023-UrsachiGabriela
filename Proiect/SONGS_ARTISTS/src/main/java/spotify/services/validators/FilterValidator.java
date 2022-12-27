@@ -1,7 +1,7 @@
 package spotify.services.validators;
 
 import org.springframework.stereotype.Component;
-import spotify.errorhandling.customexceptions.BadRequestException;
+import spotify.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.utils.ErrorMessages;
 import spotify.utils.enums.MusicGenre;
 
@@ -30,18 +30,18 @@ public class FilterValidator implements Validator {
         try {
             int y = Integer.parseInt(year.toString());
             if (y < 0 || y >= 4000) {
-                throw new BadRequestException(ErrorMessages.INVALID_YEAR);
+                throw new UnprocessableContentException(ErrorMessages.INVALID_YEAR);
             }
         } catch (IllegalArgumentException ex) {
-            throw new BadRequestException(ErrorMessages.INVALID_YEAR);
+            throw new UnprocessableContentException(ErrorMessages.INVALID_YEAR);
         }
     }
 
     private void validateGenre(Object genre) {
         try {
             MusicGenre mg = MusicGenre.valueOf(genre.toString().toUpperCase());
-        } catch (IllegalArgumentException ex) {
-            throw new BadRequestException(ErrorMessages.INVALID_MUSIC_GENRE);
+        } catch (UnprocessableContentException ex) {
+            throw new UnprocessableContentException(ErrorMessages.INVALID_MUSIC_GENRE);
         }
     }
 }

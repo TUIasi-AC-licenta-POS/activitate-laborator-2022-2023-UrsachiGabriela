@@ -73,7 +73,7 @@ public class ArtistsService {
     }
 
     public ArtistEntity createNewArtist(ArtistEntity artistEntity) {
-
+        // verificare suplimentara doar pt a avea mesaj custom la exceptie; altfel, e returnat in response mesajul exceptiei din bd
         if (artistsRepository.findByName(artistEntity.getName()) != null) {
             throw new ConflictException(artistEntity.getName() + ErrorMessages.NAME_ALREADY_EXISTENT);
         }
@@ -105,7 +105,11 @@ public class ArtistsService {
     }
 
     public Set<ArtistEntity> getArtistForGivenSong(int songId) {
-        return new HashSet<>(artistsRepository.artistsForGivenSong(songId));
+        List<ArtistEntity> artistEntities = artistsRepository.artistsForGivenSong(songId);
+        if(artistEntities.size() == 0){
+            throw new EntityNotFoundException(ErrorMessages.SONG_NOT_FOUND + songId);
+        }
+        return new HashSet<>(artistEntities);
     }
 
 }

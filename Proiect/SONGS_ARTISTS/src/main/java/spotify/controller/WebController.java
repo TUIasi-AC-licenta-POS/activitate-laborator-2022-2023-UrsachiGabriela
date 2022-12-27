@@ -95,8 +95,8 @@ public class WebController {
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "Found searched artists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content)
-
+                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @GetMapping(value = "/api/songcollection/artists")
     public ResponseEntity<PagedModel<ArtistResponse>> getAllArtists(
@@ -138,7 +138,6 @@ public class WebController {
                     @ApiResponse(responseCode = "200", description = "Found searched artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
-
             })
     @GetMapping("/api/songcollection/artists/{uuid}")
     public ResponseEntity<ArtistResponse> getArtistById(@PathVariable int uuid) {
@@ -172,7 +171,6 @@ public class WebController {
 
         // add links
         artistModelAssembler.toModel(artistResponse);
-
         for (SongResponse songResponse : artistResponse.getSongs()) {
             songResponse = songModelAssembler.toSimpleModel(songResponse);
         }
@@ -191,7 +189,7 @@ public class WebController {
     @GetMapping("/api/songcollection/songs/{id}/artists")
     public ResponseEntity<Set<ArtistResponse>> getAllArtistsForGivenSong(@PathVariable int id) {
         // query db
-        SongEntity songEntity = songsService.getSongById(id);
+        //SongEntity songEntity = songsService.getSongById(id);
         Set<ArtistEntity> artistEntities = artistsService.getArtistForGivenSong(id);
 
         // map to dto
@@ -208,8 +206,9 @@ public class WebController {
             {
                     @ApiResponse(responseCode = "201", description = "Successfully created a new artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "204", description = "Successfully replaced an existing resource with given uuid", content = @Content),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
                     @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PutMapping("/api/songcollection/artists/{uuid}")
     public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid, @Valid @RequestBody NewArtistRequest newArtist) {
@@ -266,8 +265,10 @@ public class WebController {
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "Successfully updated join table", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+
             })
     @PostMapping("/api/songcollection/artists/{uuid}/songs")
     public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid, @Valid @RequestBody NewSongsForArtistRequest request) {
@@ -297,7 +298,9 @@ public class WebController {
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "Found searched songs", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content)
+                    @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+
             })
     @GetMapping("/api/songcollection/songs")
     public ResponseEntity<PagedModel<SongResponse>> getAllSongs(

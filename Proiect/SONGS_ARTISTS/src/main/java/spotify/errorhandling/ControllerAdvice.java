@@ -1,11 +1,11 @@
 package spotify.errorhandling;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
-import spotify.errorhandling.customexceptions.BadRequestException;
 import spotify.errorhandling.customexceptions.ConflictException;
 import spotify.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.errorhandling.customexceptions.UnprocessableContentException;
@@ -21,21 +21,13 @@ public class ControllerAdvice {
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(javax.validation.ConstraintViolationException ex) {
         String details = ex.getMessage();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
     }
 
-    // for custom validator (FilterValidator)
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ExceptionResponse> handleBadRequestException(BadRequestException ex) {
-        String details = ex.getMessage();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-        ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
-        return new ResponseEntity<>(exceptionResponse, status);
-    }
 
-    @ExceptionHandler({ConflictException.class, SQLIntegrityConstraintViolationException.class})
+    @ExceptionHandler({ConflictException.class, SQLIntegrityConstraintViolationException.class, ConstraintViolationException.class})
     public ResponseEntity<ExceptionResponse> handleConflictExceptions(RuntimeException ex) {
         String details = ex.getMessage();
         HttpStatus status = HttpStatus.CONFLICT;
@@ -64,7 +56,7 @@ public class ControllerAdvice {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String details = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
     }
