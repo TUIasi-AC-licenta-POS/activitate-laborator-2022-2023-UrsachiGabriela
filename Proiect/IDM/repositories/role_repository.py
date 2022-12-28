@@ -1,8 +1,9 @@
 from models.entities.role_orm import Role
+from repositories import user_repository
 from repositories.repository import Repository
 from utils.roles_code import Roles
 
-session = Repository.get_session()
+session = user_repository.session
 
 def get_roles():
     roles = session.query(Role).all()

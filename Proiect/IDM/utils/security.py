@@ -74,17 +74,3 @@ def add_to_blacklist(token:str):
 
 def is_in_blacklist(token:str):
     return token in blacklist
-
-
-
-if __name__ == '__main__':
-    access_token = create_access_token(userId=1, userRoles=[1, 2])
-
-    print(validate_token(access_token))
-    # print(jws.JWS.from_jose_token(access_token))
-    # JWS(payload={"exp":"2022-12-18T21:32:53.143974","iss":"http://127.0.0.1:8000","jti":"568d77a6-7f17-11ed-90fb-098a8f8eff17","roles":[1],"sub":1})
-
-    # print("ACCESS TOKEN: "+access_token)
-    # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDEsICJleHAiOiAiMjAyMi0xMi0yOFQxNzoxNTo1NS4zNzI3MTMiLCAianRpIjogIjIwYjI2ZmNjLTg2YzEtMTFlZC04NzIzLTYzNTliZTRlMTUzNCIsICJyb2xlcyI6IFsxXX0.mvE4aay6N-5p5aZ5pMcfIIPYzwDtzqN6glmq0DinL3g
-
-    # print(json.loads(j.payload.decode('utf-8'))["sub"])
