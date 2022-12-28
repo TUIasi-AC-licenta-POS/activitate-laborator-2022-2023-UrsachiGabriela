@@ -16,6 +16,10 @@ def get_user_by_name(username):
     user = session.query(User).filter(User.uname == username)
     return user.first()
 
+def get_user_by_id(uid):
+    user = session.query(User).filter(User.uid == uid)
+    return user.first()
+
 
 def create_user(username, password, role):
     session = Session().object_session(role)

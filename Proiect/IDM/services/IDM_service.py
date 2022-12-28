@@ -1,28 +1,36 @@
+import collections
+
 import spyne
+from munch import DefaultMunch
 from spyne import Application, rpc, ServiceBase, String, Boolean, Array, Iterable
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 
+from models.dto.authorize_response import AuthorizeResponse
 from models.dto.role_dto import RoleDTO
 from models.dto.user_dto import UserDTO
-from repositories import user_repository
 from repositories.role_repository import *
 from repositories.user_repository import *
-from utils.password_encoder import encode, match
-from utils.password_validator import is_valid
-from utils.register_data import RegisterRequest, RegisterResponse
+from utils import security
+from utils.password_ops import encode, match, is_valid
+from utils.roles_code import Roles
 
 
 class IDMService(ServiceBase):
-    @rpc(RegisterRequest, _returns=String)
-    def create_user(ctx, request):
-        default_role = get_role_by_name("guest")
 
-        if not is_valid(request.upass):
+    # la crearea unui cont, utilizatorul poate sa isi selecteze tipul de cont (client/artist)
+    @rpc(String, String, _returns=String)
+    def register_user(ctx, uname, upass, urole):
+        role = get_role_by_name(urole)
+
+        if role not in [Roles.CLIENT.name, Roles.ARTIST.name]:
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
+
+        if not is_valid(upass):
             raise spyne.Fault(faultcode='Client', faultstring="Too weak password")
 
-        encoded_password = encode(request.upass)
-        create = create_user(request.uname, encoded_password, default_role)
+        encoded_password = encode(upass)
+        create = create_user(uname, encoded_password, role)
 
         print(create)
         if create is True:
@@ -33,8 +41,36 @@ class IDMService(ServiceBase):
 
         raise spyne.Fault(faultcode='Server', faultstring="Could not save this user")
 
+    # content manager created by admin
     @rpc(String, String, String, _returns=String)
-    def change_upass(ctx, uname, old_pass, new_pass):
+    def create_user(ctx, access_token, uname, upass):
+        auth_response: AuthorizeResponse = ctx.authorize(access_token)
+
+        if Roles.APP_ADMIN.name not in auth_response.roles:
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
+
+        if not is_valid(upass):
+            raise spyne.Fault(faultcode='Client', faultstring="Too weak password")
+
+        encoded_password = encode(upass)
+        role = get_role_by_name(Roles.CONTENT_MANAGER.name)
+        create = create_user(uname, encoded_password, role)
+
+        if create is True:
+            return "Successfully created"
+
+        if "users_UK" in create:
+            raise spyne.Fault(faultcode='Client', faultstring="This username already exists")
+
+        raise spyne.Fault(faultcode='Server', faultstring="Could not save this user")
+
+    @rpc(String, String, String, String, _returns=String)
+    def change_upass(ctx, access_token, uname, old_pass, new_pass):
+        auth_response: AuthorizeResponse = ctx.authorize(access_token)
+        roles = auth_response.roles
+
+        
+
         user = get_user_by_name(uname)
 
         if not match(old_pass, user.upass):
@@ -48,8 +84,8 @@ class IDMService(ServiceBase):
 
         raise spyne.Fault(faultcode='Server', faultstring="Could not change the password for given user")
 
-    @rpc(String, String, _returns=String)
-    def add_user_role(ctx, uname, new_role):
+    @rpc(String, String, String, _returns=String)
+    def add_user_role(ctx, access_token, uname, new_role):
         user = get_user_by_name(uname)
         role = get_role_by_name(new_role)  # to verify if new role name is valid
 
@@ -64,8 +100,8 @@ class IDMService(ServiceBase):
 
         raise spyne.Fault(faultcode='Server', faultstring="Could not update roles for given user")
 
-    @rpc(String, String, _returns=String)
-    def remove_user_role(ctx, uname, removed_role):
+    @rpc(String, String, String, _returns=String)
+    def remove_user_role(ctx, access_token, uname, removed_role):
         user = get_user_by_name(uname)
         role = get_role_by_name(removed_role)  # to verify if new role name is valid
 
@@ -84,8 +120,8 @@ class IDMService(ServiceBase):
 
         raise spyne.Fault(faultcode='Server', faultstring="Could not remove roles for given user")
 
-    @rpc(String, _returns=String)
-    def remove_user(ctx, uname):
+    @rpc(String, String, _returns=String)
+    def remove_user(ctx, access_token, uname):
         user = get_user_by_name(uname)
 
         if user is None:
@@ -96,9 +132,11 @@ class IDMService(ServiceBase):
 
         raise spyne.Fault(faultcode='Server', faultstring="Could not remove roles for given user")
 
-    @rpc(String, _returns=UserDTO)
-    def get_user_info(ctx, uname):
+    @rpc(String, String, _returns=UserDTO)
+    def get_user_info(ctx, access_token, uname):
         user = get_user_by_name(uname)
+        if user is None:
+            raise spyne.Fault(faultcode='Client', faultstring="This user doesn't exist")
 
         roles = []
         for role in user.roles:
@@ -108,8 +146,8 @@ class IDMService(ServiceBase):
         result = UserDTO(user.uid, user.uname, roles)
         return result
 
-    @rpc(_returns=Array(UserDTO))
-    def list_users(ctx):
+    @rpc(String, _returns=Array(UserDTO))
+    def list_users(ctx, access_token):
         users = get_users()
         result = []
 
@@ -123,8 +161,8 @@ class IDMService(ServiceBase):
 
         return result
 
-    @rpc(_returns=Iterable(RoleDTO))
-    def list_roles(ctx):
+    @rpc(String, _returns=Iterable(RoleDTO))
+    def list_roles(ctx, access_token):
         roles = get_roles()
         result = []
 
@@ -134,30 +172,50 @@ class IDMService(ServiceBase):
 
         return result
 
-    @rpc(String, String, _returns=Boolean)
-    def login(ctx, uname, upass):
+    @rpc(String, String, String, _returns=String)
+    def login(ctx, access_token, uname, upass):
         user = get_user_by_name(uname)
+        roles_name = list(map(lambda role: role.rname, user.roles))
 
         if user is not None:
             password = user.upass
             if match(upass, password):
-                return True
-        return False
-    
-    @rpc(String, String, _returns=Boolean)
-    def authorize(ctx, uname, urole):
-        user = get_user_by_name(uname)
+                return security.create_access_token(user.uid, roles_name)
+        return "False"
+
+    @rpc(String, _returns=AuthorizeResponse)
+    def authorize(ctx, access_token):
+        # validate integrity + expiry date
+        response = security.validate_token(access_token)
+        if not response:
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid token")
+
+        # validate roles
+        obj = DefaultMunch.fromDict(response)
+        if not ctx.verify_roles(obj.sub, obj.roles):
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid token")
+
+        return AuthorizeResponse(obj.sub, obj.roles)
+
+    @rpc(String, _returns=Boolean)
+    def logout(ctx, access_token):
+        security.add_to_blacklist(access_token)
+        return True
+
+    def verify_roles(ctx, uid, uroles):
+        user = get_user_by_id(uid)
 
         if user is None:
-            raise spyne.Fault(faultcode='Client', faultstring="This user doesn't exist")
+            return False
 
-        role = get_role_by_name(urole)
-        if role is None:
-            raise spyne.Fault(faultcode='Client', faultstring="This role doesn't exist")
+        roles = user.roles
 
-        for r in user.roles:
-            if r.rname == urole:
-                return True
+        uroles.sort()
+        roles.sort()
+
+        if collections.Counter(uroles) == collections.Counter(roles):
+            return True
+
         return False
 
 
