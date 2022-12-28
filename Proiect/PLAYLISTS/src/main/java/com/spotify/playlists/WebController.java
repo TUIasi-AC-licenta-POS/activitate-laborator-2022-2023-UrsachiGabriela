@@ -53,6 +53,7 @@ public class WebController {
             {
                     @ApiResponse(responseCode = "200", description = "Found playlists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for query params", content = @Content),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @GetMapping(value = "/playlists")
     public ResponseEntity<CollectionModel<PlaylistResponse>> getAllPlaylists(
@@ -98,8 +99,8 @@ public class WebController {
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "201", description = "Successfully added  new playlist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Mentioned playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @PostMapping("/playlists")
     public ResponseEntity<PlaylistResponse> createPlaylist(@Valid @RequestBody PlaylistRequest playlistRequest) {
@@ -118,39 +119,41 @@ public class WebController {
         return ResponseEntity.ok().body(playlistResponse);
     }
 
-    @Operation(summary = "Add songs to an existing playlist - from SA module")
-    @ApiResponses(value =
-            {
-                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
-            })
-    @PostMapping("/playlists/{id}/songs")
-    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String id, @RequestBody SongRequestResponse songRequestResponse) {
-        // map to resource
-        Resource song = songMapper.toSongResource(songRequestResponse);
-
-        // update db
-        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
-
-        // map to dto
-        PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);
-
-        // add links
-        playlistModelAssembler.toModel(playlistResponse);
-
-        return ResponseEntity.ok().body(playlistResponse);
-    }
+//    @Operation(summary = "Add songs to an existing playlist - from SA module")
+//    @ApiResponses(value =
+//            {
+//                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+//                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+//                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+//                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+//            })
+//    @PostMapping("/playlists/{id}/songs")
+//    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String id, @RequestBody SongRequestResponse songRequestResponse) {
+//        // map to resource
+//        Resource song = songMapper.toSongResource(songRequestResponse);
+//
+//        // update db
+//        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
+//
+//        // map to dto
+//        PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);
+//
+//        // add links
+//        playlistModelAssembler.toModel(playlistResponse);
+//
+//        return ResponseEntity.ok().body(playlistResponse);
+//    }
 
     @Operation(summary = "Add songs to an existing playlist")
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
-                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables or malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Searched playlist not found or given song not existent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class)))
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched playlist not found or given song not existent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
-    @PostMapping("/playlists/{id}")
-    public ResponseEntity<PlaylistResponse> addSongToPlaylist2(@PathVariable String id, @Validated @RequestBody SimpleSongRequest songRequest) {
+    @PatchMapping("/playlists/{id}/songs")
+    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String playlistId, @Validated @RequestBody SimpleSongRequest songRequest) {
         // send request
         SongRequestResponse songRequestResponse = restClient.getSongById(songRequest.getSongId());
 
@@ -158,7 +161,7 @@ public class WebController {
         Resource song = songMapper.toSongResource(songRequestResponse);
 
         // update db
-        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
+        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, playlistId, song);
 
         // map to dto
         PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);

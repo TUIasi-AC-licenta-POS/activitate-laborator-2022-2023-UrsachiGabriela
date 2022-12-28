@@ -19,7 +19,7 @@ public class ControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionResponse> handleConstraintViolationException(ConstraintViolationException ex) {
         String details = ex.getMessage();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
     }
@@ -44,7 +44,7 @@ public class ControllerAdvice {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         String details = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
     }
