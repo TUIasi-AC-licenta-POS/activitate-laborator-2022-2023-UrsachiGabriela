@@ -5,6 +5,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 import spotify.controller.WebController;
+import spotify.model.entities.ArtistEntity;
 import spotify.view.responses.ArtistResponse;
 
 import java.util.ArrayList;
@@ -25,21 +26,14 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
 
         artistResponse = toSimpleModel(artistResponse);
 
-        links.add(linkTo(
-                methodOn(WebController.class).getAllArtists(null, null, null, null))
-                .withRel("parent"));
-
-
-        links.add(linkTo(methodOn(WebController.class).assignSongsToArtist(artistResponse.getId(), null)).withRel("assign songs").withType("POST"));
-        links.add(linkTo(methodOn(WebController.class).deleteArtist(artistResponse.getId())).withRel("delete artist").withType("DELETE"));
+        links.add(linkTo(methodOn(WebController.class).getAllArtists(null, null, null, null)).withRel("parent"));
 
         if (artistResponse.getHasSongs()) {
-            links.add(linkTo(
-                    methodOn(WebController.class).getAllSongsForGivenArtist(artistResponse.getId()))
-                    .withRel("songs"));
+            links.add(linkTo(methodOn(WebController.class).getAllSongsForGivenArtist(artistResponse.getId())).withRel("songs"));
         }
 
         artistResponse.add(links);
+        artistResponse = toComplexModel(artistResponse);
 
         return artistResponse;
     }
@@ -50,6 +44,18 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
         links.add(linkTo(methodOn(WebController.class)
                 .getArtistById(artistResponse.getId()))
                 .withSelfRel());
+
+        artistResponse.add(links);
+
+        return artistResponse;
+    }
+
+    public ArtistResponse toComplexModel(ArtistResponse artistResponse){
+        List<Link> links = new ArrayList<>();
+
+
+        links.add(linkTo(methodOn(WebController.class).assignSongsToArtist(artistResponse.getId(), null)).withRel("assign songs").withType("POST"));
+        links.add(linkTo(methodOn(WebController.class).deleteArtist(artistResponse.getId())).withRel("delete artist").withType("DELETE"));
 
         artistResponse.add(links);
 

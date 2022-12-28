@@ -23,14 +23,16 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
     public SongResponse toModel(SongResponse songResponse) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(
-                methodOn(WebController.class).getAllSongs(null, null, null, null, null))
-                .withRel("parent"));
-
         songResponse = toSimpleModel(songResponse);
 
-        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId())).withRel("delete song").withType("DELETE"));
+        links.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null, null)).withRel("parent"));
+        links.add(linkTo(methodOn(WebController.class).getAllArtistsForGivenSong(songResponse.getId())).withRel("artists"));
         songResponse.add(links);
+
+        ///TODO
+        // in functie de rolul user-ului
+        songResponse = toComplexModel(songResponse);
+
 
         return songResponse;
     }
@@ -48,6 +50,17 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
                     .withRel("album"));
         }
 
+        songResponse.add(links);
+
+        return songResponse;
+    }
+
+    public SongResponse toComplexModel(SongResponse songResponse) {
+        List<Link> links = new ArrayList<>();
+
+        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId())).withRel("delete song").withType("DELETE"));
+
+        links.add(Link.of("http://localhost:8081/api/playlistscollection/playlists/{playlistId}/songs").withRel("add to playlist").withType("PATCH"));
         songResponse.add(links);
 
         return songResponse;

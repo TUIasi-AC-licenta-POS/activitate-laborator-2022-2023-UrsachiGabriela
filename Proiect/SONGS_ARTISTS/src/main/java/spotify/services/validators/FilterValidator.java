@@ -40,7 +40,7 @@ public class FilterValidator implements Validator {
     private void validateGenre(Object genre) {
         try {
             MusicGenre mg = MusicGenre.valueOf(genre.toString().toUpperCase());
-        } catch (UnprocessableContentException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new UnprocessableContentException(ErrorMessages.INVALID_MUSIC_GENRE);
         }
     }

@@ -49,7 +49,14 @@ public interface ArtistMapper {
 
     ArtistEntity toArtistEntity(ArtistResponse artistResponse);
 
+    default ArtistEntity toArtistEntity(NewArtistRequest newArtistRequest,int uuid){
+        ArtistEntity artistEntity = toArtistEntity(newArtistRequest);
+        artistEntity.setId(uuid);
+        return artistEntity;
+    }
+
     ArtistEntity toArtistEntity(NewArtistRequest newArtistRequest);
+
 
     @IterableMapping(qualifiedByName = "completeArtistMapper")
     Set<ArtistResponse> toCompleteArtistDTOSet(Set<ArtistEntity> artistEntities);

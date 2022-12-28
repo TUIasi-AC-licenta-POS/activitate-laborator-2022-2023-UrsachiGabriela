@@ -10,12 +10,10 @@ import spotify.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
 import spotify.model.repos.ArtistsRepository;
+import spotify.services.validators.CreateValidator;
 import spotify.utils.ErrorMessages;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // SQL constraints validation is part of this service
@@ -23,6 +21,9 @@ import java.util.stream.Collectors;
 public class ArtistsService {
     @Autowired
     private ArtistsRepository artistsRepository;
+
+    @Autowired
+    private CreateValidator createValidator;
 
     public Set<ArtistEntity> getAllArtists() {
         return new HashSet<>(artistsRepository.findAll());
@@ -72,7 +73,7 @@ public class ArtistsService {
         return artistsRepository.findById(uuid).isPresent();
     }
 
-    public ArtistEntity createNewArtist(ArtistEntity artistEntity) {
+    public ArtistEntity createOrReplaceArtist(ArtistEntity artistEntity) {
         // verificare suplimentara doar pt a avea mesaj custom la exceptie; altfel, e returnat in response mesajul exceptiei din bd
         if (artistsRepository.findByName(artistEntity.getName()) != null) {
             throw new ConflictException(artistEntity.getName() + ErrorMessages.NAME_ALREADY_EXISTENT);
@@ -92,6 +93,23 @@ public class ArtistsService {
 
         artistEntity.setSongs(newSongsSet);
         return artistsRepository.save(artistEntity);
+    }
+
+    public void assignSongToMultipleArtists(Set<ArtistEntity> artistEntities, SongEntity songEntity){
+        artistEntities.forEach(artistEntity -> addSongsToArtist(artistEntity, new HashSet<>() {{
+            add(songEntity);
+        }}));
+    }
+
+    public Set<ArtistEntity> getArtistsByName(Set<String> artistNames){
+        Set<ArtistEntity> artistEntities = new HashSet<>();
+
+        // if at least one artist doesn't exist, the join table will not be updated
+        for (String artistName : artistNames) {
+            artistEntities.add(getArtistByName(artistName));
+        }
+
+        return artistEntities;
     }
 
     public void removeSongFromArtists(int songId) {

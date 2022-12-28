@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
@@ -24,9 +25,6 @@ import spotify.services.dtoassemblers.ArtistModelAssembler;
 import spotify.services.dtoassemblers.SongModelAssembler;
 import spotify.services.mappers.ArtistMapper;
 import spotify.services.mappers.SongMapper;
-import spotify.services.validators.CreateValidator;
-import spotify.services.validators.FilterValidator;
-import spotify.utils.enums.MusicGenre;
 import spotify.view.requests.NewArtistRequest;
 import spotify.view.requests.NewSongRequest;
 import spotify.view.requests.NewSongsForArtistRequest;
@@ -43,8 +41,10 @@ import java.util.Set;
 
 //TODO
 // do not assign song to an inactive artist
+// logs
+// modify model assembler
 
-
+@Log4j2
 @RestController
 @Validated
 public class WebController {
@@ -59,13 +59,6 @@ public class WebController {
 
     @Autowired
     private SongModelAssembler songModelAssembler;
-
-
-    @Autowired
-    private CreateValidator createValidator;
-
-    @Autowired
-    private FilterValidator filterValidator;
 
     private final ArtistMapper artistMapper = ArtistMapper.INSTANCE;
     private final SongMapper songMapper = SongMapper.INSTANCE;
@@ -115,6 +108,8 @@ public class WebController {
             @RequestParam(required = false)
             String match
     ) {
+        log.info("[{}] -> GET, getAllArtists", this.getClass().getSimpleName());
+
         // query db
         Page<ArtistEntity> artistEntities = artistsService.getPageableArtists(page, size, name, match);
 
@@ -141,6 +136,8 @@ public class WebController {
             })
     @GetMapping("/api/songcollection/artists/{uuid}")
     public ResponseEntity<ArtistResponse> getArtistById(@PathVariable int uuid) {
+        log.info("[{}] -> GET, getArtistById, id:{}", this.getClass().getSimpleName(),uuid);
+
         // query database
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
@@ -163,6 +160,8 @@ public class WebController {
             })
     @GetMapping("/api/songcollection/artists/{uuid}/songs")
     public ResponseEntity<ArtistResponse> getAllSongsForGivenArtist(@PathVariable int uuid) {
+        log.info("[{}] -> GET, getAllSongsForGivenArtist, artistId:{}", this.getClass().getSimpleName(),uuid);
+
         // query db
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
@@ -188,8 +187,9 @@ public class WebController {
             })
     @GetMapping("/api/songcollection/songs/{id}/artists")
     public ResponseEntity<Set<ArtistResponse>> getAllArtistsForGivenSong(@PathVariable int id) {
+        log.info("[{}] -> GET, getAllArtistsForGivenSong, songId:{}", this.getClass().getSimpleName(),id);
+
         // query db
-        //SongEntity songEntity = songsService.getSongById(id);
         Set<ArtistEntity> artistEntities = artistsService.getArtistForGivenSong(id);
 
         // map to dto
@@ -212,15 +212,16 @@ public class WebController {
             })
     @PutMapping("/api/songcollection/artists/{uuid}")
     public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid, @Valid @RequestBody NewArtistRequest newArtist) {
+        log.info("[{}] -> PUT, createOrReplaceArtist, uuid:{}, artist:{}", this.getClass().getSimpleName(),uuid,newArtist);
+
         // query db to decide which of create or replace operation is needed
         boolean isAlreadyExistent = artistsService.itExistsArtist(uuid);
 
         // map dto to entity
-        ArtistEntity artistEntity = artistMapper.toArtistEntity(newArtist);
-        artistEntity.setId(uuid); //in mapper nu se seteaza id-ul deoarece acesta e path variable si nu face parte din request body
+        ArtistEntity artistEntity = artistMapper.toArtistEntity(newArtist,uuid);
 
-        // insert in db
-        ArtistEntity savedEntity = artistsService.createNewArtist(artistEntity);
+        // update db
+        ArtistEntity savedEntity = artistsService.createOrReplaceArtist(artistEntity);
 
         // map created/replaced entity to dto
         ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(savedEntity);
@@ -244,10 +245,12 @@ public class WebController {
             })
     @DeleteMapping("/api/songcollection/artists/{uuid}")
     public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable int uuid) {
+        log.info("[{}] -> DELETE, deleteArtist, uuid:{}", this.getClass().getSimpleName(),uuid);
+
         // query db for an entity with given identifier
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
-        // map entity to deleted dto
+        // map deleted entity to dto
         ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(artistEntity);
 
         // add links
@@ -272,6 +275,8 @@ public class WebController {
             })
     @PostMapping("/api/songcollection/artists/{uuid}/songs")
     public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid, @Valid @RequestBody NewSongsForArtistRequest request) {
+        log.info("[{}] -> POST, assignSongsToArtist, uuid:{}, songs:{}", this.getClass().getSimpleName(),uuid,request);
+
         // query db for songs and artist
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
         Set<SongEntity> songEntities = new HashSet<>();
@@ -323,22 +328,10 @@ public class WebController {
             String match
 
     ) {
-        Page<SongEntity> songEntities;
+        log.info("[{}] -> GET, getAllSongs", this.getClass().getSimpleName());
 
         // query database
-        if (searchBy == null || searchedValue == null) {
-            // display all without conditions
-            songEntities = songsService.getPageableSongs(page, size);
-
-        } else {
-            // validate type of searched value for given searchedBy param
-            filterValidator.validate(searchedValue, searchBy);
-
-            songEntities = searchBy.equals("title") ? (songsService.getPageableSongsByTitle(page, size, searchedValue, match))
-                    : (searchBy.equals("year") ? songsService.getPageableSongsByYear(page, size, Integer.parseInt(searchedValue))
-                    : songsService.getPageableSongsByGenre(page, size, MusicGenre.valueOf(searchedValue.toUpperCase())));
-
-        }
+        Page<SongEntity> songEntities = songsService.getPageableSongs2(page,size,searchBy,searchedValue,match);
 
         // map entities to dtos
         Page<SongResponse> songDTOPage = songEntities.map(songMapper::toCompleteSongDto);
@@ -367,6 +360,8 @@ public class WebController {
             })
     @GetMapping("/api/songcollection/songs/{id}")
     public ResponseEntity<SongResponse> getSongById(@PathVariable int id) {
+        log.info("[{}] -> GET, getSongById, songId:{}", this.getClass().getSimpleName(),id);
+
         // query database
         SongEntity songEntity = songsService.getSongById(id);
 
@@ -388,27 +383,25 @@ public class WebController {
             {
                     @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Mentioned album not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "Mentioned artists not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Mentioned album doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
 
             })
     @PostMapping("/api/songcollection/songs")
     public ResponseEntity<SongResponse> addNewSong(@Valid @RequestBody NewSongRequest newSong) {
-        // query db for given song and its album
-        SongEntity album = newSong.getParentId() != null ? songsService.getSongById(newSong.getParentId()) : null;
-        SongEntity songEntity = songMapper.toSongEntity(newSong, album);
+        log.info("[{}] -> POST, addNewSong, song:{}", this.getClass().getSimpleName(),newSong);
 
-        // validate request body
-        createValidator.validate(songEntity);
+        // query db for album and artists
+        SongEntity album = newSong.getParentId() != null ? songsService.getAlbumById(newSong.getParentId()) : null;
+        Set<ArtistEntity> artistEntities = artistsService.getArtistsByName(newSong.getArtists());
+
+        // map dto to entity
+        SongEntity songEntity = songMapper.toSongEntity(newSong, album);
 
         // db insertion and create entry in join table
         SongEntity createdEntity = songsService.createNewSong(songEntity);
-        for (String artistName : newSong.getArtists()) {
-            ArtistEntity artistEntity = artistsService.getArtistByName(artistName);
-            artistsService.addSongsToArtist(artistEntity, new HashSet<>() {{
-                add(songEntity);
-            }});
-        }
+        artistsService.assignSongToMultipleArtists(artistEntities,songEntity);
 
         // map entity to dto
         SongResponse songResponse = songMapper.toCompleteSongDto(createdEntity);
@@ -429,6 +422,8 @@ public class WebController {
             })
     @DeleteMapping("/api/songcollection/songs/{id}")
     public ResponseEntity<SongResponse> deleteSong(@PathVariable int id) {
+        log.info("[{}] -> DELETE, deleteSong, songId:{}", this.getClass().getSimpleName(),id);
+
         // query db
         SongEntity songEntity = songsService.getSongById(id);
 
