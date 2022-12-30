@@ -19,57 +19,48 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
         super(WebController.class, SongResponse.class);
     }
 
-    @Override
-    public SongResponse toModel(SongResponse songResponse) {
-        List<Link> links = new ArrayList<>();
 
-        songResponse = toSimpleModel(songResponse);
-
-        links.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null, null)).withRel("parent"));
-        links.add(linkTo(methodOn(WebController.class).getAllArtistsForGivenSong(songResponse.getId())).withRel("artists"));
-        songResponse.add(links);
-
-        ///TODO
-        // in functie de rolul user-ului
-        songResponse = toComplexModel(songResponse);
-
-
-        return songResponse;
-    }
-
-    public SongResponse toSimpleModel(SongResponse songResponse) {
+    public void toSimpleModel(SongResponse songResponse) {
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(WebController.class)
                 .getSongById(songResponse.getId()))
                 .withSelfRel());
 
+        songResponse.add(links);
+    }
+
+    @Override
+    public SongResponse toModel(SongResponse songResponse) {
+        List<Link> links = new ArrayList<>();
+
+        toSimpleModel(songResponse);
+
+        links.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null,null, null)).withRel("parent"));
         if (songResponse.getParentId() != null) {
             links.add(linkTo(methodOn(WebController.class)
                     .getSongById(songResponse.getParentId()))
                     .withRel("album"));
         }
-
-        songResponse.add(links);
-
-        return songResponse;
-    }
-
-    public SongResponse toComplexModel(SongResponse songResponse) {
-        List<Link> links = new ArrayList<>();
-
-        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId())).withRel("delete song").withType("DELETE"));
-
+        links.add(linkTo(methodOn(WebController.class).getAllArtistsForGivenSong(songResponse.getId())).withRel("artists"));
         links.add(Link.of("http://localhost:8081/api/playlistscollection/playlists/{playlistId}/songs").withRel("add to playlist").withType("PATCH"));
         songResponse.add(links);
 
         return songResponse;
     }
 
+    public void toComplexModel(SongResponse songResponse) {
+        List<Link> links = new ArrayList<>();
+
+        toModel(songResponse);
+        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId(),null)).withRel("delete song").withType("DELETE"));
+        songResponse.add(links);
+    }
+
     @Override
     public CollectionModel<SongResponse> toCollectionModel(Iterable<? extends SongResponse> songDTOS) {
         CollectionModel<SongResponse> newSongDTOS = super.toCollectionModel(songDTOS);
-        newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null, null)).withSelfRel());
+        newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null,null)).withSelfRel());
 
         return newSongDTOS;
     }
