@@ -42,9 +42,8 @@ import java.util.Set;
 //TODO
 // do not assign song to an inactive artist
 // logs
-// modify model assembler
 // uuid with type String
-// modify regex for names
+// update functionality
 
 @Log4j2
 @RestController
@@ -268,8 +267,8 @@ public class WebController {
         // add links
         artistModelAssembler.toModel(artistResponse);
 
-        // delete entity
-        artistsService.deleteArtist(artistEntity); // Se vor sterge si intrarile in tabela de join care corespund artistului dat, dar piesele raman
+        // delete entity (only mark artist as inactive)
+        artistsService.deleteArtist(artistEntity);
 
         return ResponseEntity.status(HttpStatus.OK).body(artistResponse); // reprezentarea resursei inainte de a fi stearsa
     }
@@ -282,8 +281,8 @@ public class WebController {
                     @ApiResponse(responseCode = "200", description = "Successfully updated join table", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-
+                    @ApiResponse(responseCode = "409", description = "The artist is not active", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))})
             })
     @PostMapping("/api/songcollection/artists/{uuid}/songs")
     public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid,
@@ -404,7 +403,7 @@ public class WebController {
                     @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Mentioned artists not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-                    @ApiResponse(responseCode = "409", description = "Mentioned album doesn't exist", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Mentioned album doesn't exist yet", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
 
             })
@@ -418,17 +417,17 @@ public class WebController {
 
         // query db for album and artists
         SongEntity album = newSong.getParentId() != null ? songsService.getAlbumById(newSong.getParentId()) : null;
-        Set<ArtistEntity> artistEntities = artistsService.getArtistsByName(newSong.getArtists());
+        Set<ArtistEntity> artistEntities = artistsService.getArtistsByNameIfActive(newSong.getArtists()); // if artists don't exist, or they are inactive, the song will not be created
 
         // map dto to entity
         SongEntity songEntity = songMapper.toSongEntity(newSong, album);
 
-        // db insertion and create entry in join table
-        SongEntity createdEntity = songsService.createNewSong(songEntity);
+        // create new song
+        songsService.createNewSong(songEntity);
         artistsService.assignSongToMultipleArtists(artistEntities,songEntity);
 
         // map entity to dto
-        SongResponse songResponse = songMapper.toCompleteSongDto(createdEntity);
+        SongResponse songResponse = songMapper.toCompleteSongDto(songEntity);
 
         // add links
         songModelAssembler.toComplexModel(songResponse);

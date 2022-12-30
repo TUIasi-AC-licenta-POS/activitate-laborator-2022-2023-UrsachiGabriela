@@ -9,4 +9,5 @@ public class ErrorMessages {
     public static final String INVALID_YEAR = "invalid year";
     public static final String INVALID_MUSIC_GENRE = "invalid music genre";
     public static final String PARENT_REMOVAL = "Could not remove an artist who have assigned songs";
+    public static final String INACTIVE_ARTIST = "This artist is not active";
 }

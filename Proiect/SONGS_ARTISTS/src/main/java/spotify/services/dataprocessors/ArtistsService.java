@@ -83,11 +83,13 @@ public class ArtistsService {
     }
 
     public void deleteArtist(ArtistEntity artistEntity) {
-
-        artistsRepository.delete(artistEntity);
+        artistEntity.setActive(false);
+        artistsRepository.save(artistEntity);
     }
 
     public ArtistEntity addSongsToArtist(ArtistEntity artistEntity, Set<SongEntity> songEntities) {
+        verifyArtistActivity(artistEntity);
+
         Set<SongEntity> newSongsSet = artistEntity.getSongs();
         newSongsSet.addAll(songEntities);
 
@@ -101,13 +103,13 @@ public class ArtistsService {
         }}));
     }
 
-    public Set<ArtistEntity> getArtistsByName(Set<String> artistNames){
+    public Set<ArtistEntity> getArtistsByNameIfActive(Set<String> artistNames){
         Set<ArtistEntity> artistEntities = new HashSet<>();
 
-        // if at least one artist doesn't exist, the join table will not be updated
         for (String artistName : artistNames) {
             artistEntities.add(getArtistByName(artistName));
         }
+        artistEntities.forEach(this::verifyArtistActivity);
 
         return artistEntities;
     }
@@ -131,4 +133,8 @@ public class ArtistsService {
         return new HashSet<>(artistEntities);
     }
 
+    private void verifyArtistActivity(ArtistEntity artistEntity){
+        if(!artistEntity.isActive())
+            throw new ConflictException(artistEntity.getName()+": "+ErrorMessages.INACTIVE_ARTIST);
+    }
 }
