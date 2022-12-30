@@ -1,4 +1,4 @@
-package com.spotify.playlists.utils;
+package com.spotify.playlists.utils.errorhandling;
 
 public class ErrorMessages {
     public static final String PLAYLIST_NOT_FOUND = "Could not find playlist ";

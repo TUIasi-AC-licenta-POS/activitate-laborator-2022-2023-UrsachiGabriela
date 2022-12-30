@@ -3,8 +3,8 @@ package spotify.model.entities;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import spotify.errorhandling.customexceptions.ConflictException;
-import spotify.utils.ErrorMessages;
+import spotify.utils.errorhandling.customexceptions.ConflictException;
+import spotify.utils.errorhandling.ErrorMessages;
 
 import javax.persistence.*;
 import java.util.HashSet;

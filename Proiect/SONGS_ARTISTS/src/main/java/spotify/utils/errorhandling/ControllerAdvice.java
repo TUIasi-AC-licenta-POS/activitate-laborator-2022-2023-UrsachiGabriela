@@ -1,4 +1,4 @@
-package spotify.errorhandling;
+package spotify.utils.errorhandling;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
-import spotify.errorhandling.customexceptions.ConflictException;
-import spotify.errorhandling.customexceptions.EntityNotFoundException;
-import spotify.errorhandling.customexceptions.UnprocessableContentException;
+import spotify.utils.errorhandling.customexceptions.ConflictException;
+import spotify.utils.errorhandling.customexceptions.EntityNotFoundException;
+import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.view.responses.ExceptionResponse;
 
 import java.sql.SQLIntegrityConstraintViolationException;

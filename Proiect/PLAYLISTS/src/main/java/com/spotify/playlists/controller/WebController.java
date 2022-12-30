@@ -1,5 +1,7 @@
-package com.spotify.playlists;
+package com.spotify.playlists.controller;
 
+import com.spotify.playlists.IDMClient;
+import com.spotify.playlists.IDMClientConfig;
 import com.spotify.playlists.model.collections.Playlist;
 import com.spotify.playlists.model.collections.Resource;
 import com.spotify.playlists.services.PlaylistService;
@@ -147,7 +149,7 @@ public class WebController {
     @Operation(summary = "Add songs to an existing playlist")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "204", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Searched playlist not found or given song not existent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
@@ -169,7 +171,7 @@ public class WebController {
         // add links
         playlistModelAssembler.toModel(playlistResponse);
 
-        return ResponseEntity.ok().body(playlistResponse);
+        return ResponseEntity.noContent().build();
     }
 
 

@@ -1,4 +1,4 @@
-package spotify.utils;
+package spotify.utils.errorhandling;
 
 public class ErrorMessages {
     public static final String ARTIST_NOT_FOUND = "Could not find artist ";

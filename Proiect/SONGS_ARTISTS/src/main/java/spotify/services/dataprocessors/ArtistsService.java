@@ -5,13 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import spotify.errorhandling.customexceptions.ConflictException;
-import spotify.errorhandling.customexceptions.EntityNotFoundException;
+import spotify.utils.errorhandling.customexceptions.ConflictException;
+import spotify.utils.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
 import spotify.model.repos.ArtistsRepository;
 import spotify.services.validators.CreateValidator;
-import spotify.utils.ErrorMessages;
+import spotify.utils.errorhandling.ErrorMessages;
 
 import java.util.*;
 import java.util.stream.Collectors;

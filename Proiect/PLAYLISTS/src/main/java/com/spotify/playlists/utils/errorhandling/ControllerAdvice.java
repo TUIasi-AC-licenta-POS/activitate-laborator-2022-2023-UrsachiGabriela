@@ -1,7 +1,7 @@
-package com.spotify.playlists.errorhandling;
+package com.spotify.playlists.utils.errorhandling;
 
-import com.spotify.playlists.errorhandling.customexceptions.ConflictException;
-import com.spotify.playlists.errorhandling.customexceptions.ResourceNotFoundException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.ConflictException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.ResourceNotFoundException;
 import com.spotify.playlists.view.responses.ExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

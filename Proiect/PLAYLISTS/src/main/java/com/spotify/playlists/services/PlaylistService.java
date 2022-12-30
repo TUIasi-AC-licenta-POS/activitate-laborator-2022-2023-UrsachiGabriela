@@ -1,11 +1,11 @@
 package com.spotify.playlists.services;
 
-import com.spotify.playlists.errorhandling.customexceptions.ConflictException;
-import com.spotify.playlists.errorhandling.customexceptions.ResourceNotFoundException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.ConflictException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.ResourceNotFoundException;
 import com.spotify.playlists.model.collections.Playlist;
 import com.spotify.playlists.model.collections.Resource;
 import com.spotify.playlists.model.repos.PlaylistRepository;
-import com.spotify.playlists.utils.ErrorMessages;
+import com.spotify.playlists.utils.errorhandling.ErrorMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;

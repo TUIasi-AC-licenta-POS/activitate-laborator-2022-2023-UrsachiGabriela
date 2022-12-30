@@ -1,7 +1,7 @@
 package spotify.services.validators;
 
 import org.springframework.stereotype.Component;
-import spotify.errorhandling.customexceptions.UnprocessableContentException;
+import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
 import spotify.utils.enums.MusicType;

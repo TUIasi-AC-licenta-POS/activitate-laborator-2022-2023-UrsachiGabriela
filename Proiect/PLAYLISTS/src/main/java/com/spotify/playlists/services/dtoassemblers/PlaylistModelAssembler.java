@@ -1,6 +1,6 @@
 package com.spotify.playlists.services.dtoassemblers;
 
-import com.spotify.playlists.WebController;
+import com.spotify.playlists.controller.WebController;
 import com.spotify.playlists.view.responses.PlaylistResponse;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
