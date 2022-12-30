@@ -1,8 +1,9 @@
-package spotify;
+package spotify.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import spotify.IDMClient;
 
 @Configuration
 public class IDMClientConfig {

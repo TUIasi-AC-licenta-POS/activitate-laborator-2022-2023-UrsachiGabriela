@@ -8,7 +8,7 @@ from spyne import Application, rpc, ServiceBase, String, Boolean, Array, Iterabl
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 
-from models.dto.authorize_response import AuthorizeResponse
+from models.dto.authorize_response import AuthorizeResp
 from models.dto.role_dto import RoleDTO
 from models.dto.user_dto import UserDTO
 from repositories.role_repository import *
@@ -72,7 +72,7 @@ class IDMService(ServiceBase):
     # this action is permitted to account owner or to app admin(in case of forgotten pass)
     @rpc(String, String, String, String, _returns=String)
     def change_upass(ctx, access_token, uname, old_pass, new_pass):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         # get user identified by uname
         user = get_user_by_name(uname)
@@ -97,7 +97,7 @@ class IDMService(ServiceBase):
 
     @rpc(String, String, String, _returns=String)
     def add_user_role(ctx, access_token, uname, new_role):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         if Roles.APP_ADMIN.name not in auth_response.roles:
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
@@ -118,7 +118,7 @@ class IDMService(ServiceBase):
 
     @rpc(String, String, String, _returns=String)
     def remove_user_role(ctx, access_token, uname, removed_role):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         if Roles.APP_ADMIN.name not in auth_response.roles:
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
@@ -143,7 +143,7 @@ class IDMService(ServiceBase):
 
     @rpc(String, String, _returns=String)
     def remove_user(ctx, access_token, uname):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         if Roles.APP_ADMIN.name not in auth_response.roles:
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
@@ -160,7 +160,7 @@ class IDMService(ServiceBase):
 
     @rpc(String, String, _returns=UserDTO)
     def get_user_info(ctx, access_token, uname):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         # get user identified by uname
         user = get_user_by_name(uname)
@@ -183,7 +183,7 @@ class IDMService(ServiceBase):
 
     @rpc(String, _returns=Array(UserDTO))
     def list_users(ctx, access_token):
-        auth_response: AuthorizeResponse = auth(access_token)
+        auth_response: AuthorizeResp = auth(access_token)
 
         if Roles.APP_ADMIN.name not in auth_response.roles:
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
@@ -218,15 +218,15 @@ class IDMService(ServiceBase):
     @rpc( String, String, _returns=String)
     def login(ctx, uname, upass):
         user = get_user_by_name(uname)
-        roles_name = list(map(lambda role: role.rname, user.roles))
 
         if user is not None:
             password = user.upass
             if match(upass, password):
+                roles_name = list(map(lambda role: role.rname, user.roles))
                 return security.create_access_token(user.uid, roles_name)
         return "False"
 
-    @rpc(String, _returns=AuthorizeResponse)
+    @rpc(String, _returns=AuthorizeResp)
     def authorize(ctx, access_token):
         return auth(access_token)
 
@@ -256,7 +256,7 @@ def auth(access_token):
     if not verify_roles(obj.sub, obj.roles):
         raise spyne.Fault(faultcode='Client', faultstring="Invalid token")
 
-    return AuthorizeResponse(obj.sub, obj.roles)
+    return AuthorizeResp(obj.sub, obj.roles)
 
 def verify_roles(uid, uroles):
     user = get_user_by_id(uid)

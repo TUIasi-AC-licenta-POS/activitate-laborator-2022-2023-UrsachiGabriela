@@ -6,7 +6,7 @@ from jwcrypto import jwk, jws
 from jwcrypto.common import json_encode
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 SECRET_KEY = jwk.JWK.generate(kty='oct', size=256)
 
 blacklist=[]

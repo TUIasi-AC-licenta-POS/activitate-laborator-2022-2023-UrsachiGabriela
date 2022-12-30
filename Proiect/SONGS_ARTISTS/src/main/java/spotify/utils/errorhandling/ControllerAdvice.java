@@ -1,14 +1,14 @@
 package spotify.utils.errorhandling;
 
 import org.hibernate.exception.ConstraintViolationException;
+import org.springdoc.api.ErrorMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
-import spotify.utils.errorhandling.customexceptions.ConflictException;
-import spotify.utils.errorhandling.customexceptions.EntityNotFoundException;
-import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
+import org.springframework.ws.soap.client.SoapFaultClientException;
+import spotify.utils.errorhandling.customexceptions.*;
 import spotify.view.responses.ExceptionResponse;
 
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -64,7 +64,7 @@ public class ControllerAdvice {
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<ExceptionResponse> handleHttpClientErrorException(HttpClientErrorException ex) {
         String details;
-        if (ex.getMessage().contains("details")) {
+        if (Objects.requireNonNull(ex.getMessage()).contains("details")) {
             details = ex.getLocalizedMessage().split("details")[1].replaceAll("[^a-zA-Z0-9 -]", "");
         } else {
             details = ex.getLocalizedMessage().split("error")[1].replaceAll("[^a-zA-Z0-9 -]", "");
@@ -73,5 +73,23 @@ public class ControllerAdvice {
         HttpStatus status = ex.getStatusCode();
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
+    }
+
+    @ExceptionHandler(SoapFaultClientException.class)
+    public ResponseEntity<ExceptionResponse> handleSOAPClientErrorException(SoapFaultClientException ex) {
+        if(Objects.equals(ex.getMessage(), "Invalid token")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return null;
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ExceptionResponse> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

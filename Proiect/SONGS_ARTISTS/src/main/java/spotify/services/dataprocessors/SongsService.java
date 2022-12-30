@@ -27,9 +27,10 @@ public class SongsService {
     private SongsRepository songsRepository;
     @Autowired
     private CreateValidator createValidator;
-
     @Autowired
     private FilterValidator filterValidator;
+    @Autowired
+    private ArtistsService artistsService;
 
     public Set<SongEntity> getAllSongs() {
         return new HashSet<>(songsRepository.findAll());
@@ -98,6 +99,8 @@ public class SongsService {
         if (songEntity.getType().equals(MusicType.ALBUM) && !songEntity.getSongEntities().isEmpty()) {
             throw new ConflictException("You are not able to remove this album until you remove all its songs");
         }
+
+        artistsService.removeSongFromArtists(songEntity.getId());
         songsRepository.deleteById(songEntity.getId());
     }
 

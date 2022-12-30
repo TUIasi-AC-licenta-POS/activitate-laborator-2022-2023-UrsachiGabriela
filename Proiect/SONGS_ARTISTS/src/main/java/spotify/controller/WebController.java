@@ -1,5 +1,6 @@
 package spotify.controller;
 
+import com.spotify.idmclient.wsdl.AuthorizeResp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,20 +12,23 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import spotify.IDMClient;
-import spotify.IDMClientConfig;
+import spotify.configs.IDMClientConfig;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
+import spotify.services.authorization.AuthService;
 import spotify.services.dataprocessors.ArtistsService;
 import spotify.services.dataprocessors.SongsService;
 import spotify.services.dtoassemblers.ArtistModelAssembler;
 import spotify.services.dtoassemblers.SongModelAssembler;
 import spotify.services.mappers.ArtistMapper;
 import spotify.services.mappers.SongMapper;
+import spotify.utils.enums.UserRoles;
 import spotify.view.requests.NewArtistRequest;
 import spotify.view.requests.NewSongRequest;
 import spotify.view.requests.NewSongsForArtistRequest;
@@ -36,6 +40,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -43,20 +49,22 @@ import java.util.Set;
 // do not assign song to an inactive artist
 // logs
 // modify model assembler
+// uuid with type String
+// modify regex for names
 
 @Log4j2
 @RestController
 @Validated
 public class WebController {
+
+    @Autowired
+    private AuthService authService;
     @Autowired
     private ArtistsService artistsService;
-
     @Autowired
     private SongsService songsService;
-
     @Autowired
     private ArtistModelAssembler artistModelAssembler;
-
     @Autowired
     private SongModelAssembler songModelAssembler;
 
@@ -171,7 +179,7 @@ public class WebController {
         // add links
         artistModelAssembler.toModel(artistResponse);
         for (SongResponse songResponse : artistResponse.getSongs()) {
-            songResponse = songModelAssembler.toSimpleModel(songResponse);
+            songModelAssembler.toSimpleModel(songResponse);
         }
 
         return ResponseEntity.ok().body(artistResponse);
@@ -211,8 +219,14 @@ public class WebController {
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PutMapping("/api/songcollection/artists/{uuid}")
-    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid, @Valid @RequestBody NewArtistRequest newArtist) {
+    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid,
+                                                          @Valid @RequestBody NewArtistRequest newArtist,
+                                                          @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
         log.info("[{}] -> PUT, createOrReplaceArtist, uuid:{}, artist:{}", this.getClass().getSimpleName(),uuid,newArtist);
+
+        // authorize
+        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
         // query db to decide which of create or replace operation is needed
         boolean isAlreadyExistent = artistsService.itExistsArtist(uuid);
@@ -227,7 +241,7 @@ public class WebController {
         ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(savedEntity);
 
         // add links
-        artistModelAssembler.toModel(artistResponse);
+        artistModelAssembler.toComplexModel(artistResponse);
 
         // decide response code
         if (isAlreadyExistent)
@@ -244,8 +258,12 @@ public class WebController {
                     @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/api/songcollection/artists/{uuid}")
-    public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable int uuid) {
+    public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable int uuid,
+                                                       @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> DELETE, deleteArtist, uuid:{}", this.getClass().getSimpleName(),uuid);
+
+        // authorize
+        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
         // query db for an entity with given identifier
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
@@ -274,8 +292,13 @@ public class WebController {
 
             })
     @PostMapping("/api/songcollection/artists/{uuid}/songs")
-    public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid, @Valid @RequestBody NewSongsForArtistRequest request) {
+    public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid,
+                                                              @Valid @RequestBody NewSongsForArtistRequest request,
+                                                              @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> POST, assignSongsToArtist, uuid:{}, songs:{}", this.getClass().getSimpleName(),uuid,request);
+
+        // authorize
+        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
         // query db for songs and artist
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
@@ -291,7 +314,10 @@ public class WebController {
         ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(updatedArtist);
 
         // add links
-        artistModelAssembler.toModel(artistResponse);
+        artistModelAssembler.toComplexModel(artistResponse);
+        for(SongResponse songResponse:artistResponse.getSongs()){
+            songModelAssembler.toSimpleModel(songResponse);
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(artistResponse);
     }
@@ -389,8 +415,12 @@ public class WebController {
 
             })
     @PostMapping("/api/songcollection/songs")
-    public ResponseEntity<SongResponse> addNewSong(@Valid @RequestBody NewSongRequest newSong) {
+    public ResponseEntity<SongResponse> addNewSong(@Valid @RequestBody NewSongRequest newSong,
+                                                   @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> POST, addNewSong, song:{}", this.getClass().getSimpleName(),newSong);
+
+        // authorize
+        authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // query db for album and artists
         SongEntity album = newSong.getParentId() != null ? songsService.getAlbumById(newSong.getParentId()) : null;
@@ -407,7 +437,7 @@ public class WebController {
         SongResponse songResponse = songMapper.toCompleteSongDto(createdEntity);
 
         // add links
-        songModelAssembler.toModel(songResponse);
+        songModelAssembler.toComplexModel(songResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(songResponse);
     }
@@ -421,8 +451,12 @@ public class WebController {
                     @ApiResponse(responseCode = "409", description = "Conflict: cannot remove album without removing all its songs", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/api/songcollection/songs/{id}")
-    public ResponseEntity<SongResponse> deleteSong(@PathVariable int id) {
+    public ResponseEntity<SongResponse> deleteSong(@PathVariable int id,
+                                                   @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> DELETE, deleteSong, songId:{}", this.getClass().getSimpleName(),id);
+
+        // authorize
+        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
         // query db
         SongEntity songEntity = songsService.getSongById(id);
@@ -434,21 +468,9 @@ public class WebController {
         songModelAssembler.toModel(songResponse);
 
         // delete song from songs table and also from join table
-        artistsService.removeSongFromArtists(id);
         songsService.deleteSong(songEntity);
 
         return ResponseEntity.status(HttpStatus.OK).body(songResponse);
     }
 
-
-    @GetMapping(value = "/1")
-    public ResponseEntity<String> getUserId() {
-        IDMClient idmClientService = new AnnotationConfigApplicationContext(IDMClientConfig.class).getBean(IDMClient.class);
-
-        //idmClientService.setDefaultUri("http://127.0.0.1:8000");
-
-        String name = idmClientService.getUserInfoResponse("Ana");
-        return ResponseEntity.ok().body(name);
-
-    }
 }
