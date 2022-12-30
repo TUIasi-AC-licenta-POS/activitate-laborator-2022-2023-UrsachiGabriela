@@ -4,7 +4,6 @@ import com.spotify.idmclient.wsdl.AuthorizeResp;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import spotify.IDMClient;
 import spotify.configs.IDMClientConfig;
 import spotify.utils.enums.UserRoles;
 import spotify.utils.errorhandling.customexceptions.ForbiddenException;
