@@ -19,6 +19,6 @@ import javax.validation.constraints.Pattern;
 public class PlaylistRequest {
 
     @NotBlank(message = "Playlist name should not be empty")
-    @Pattern(regexp = "\\b([a-zA-ZÀ-ÿ][-,a-z. ']+[ ]*)+", message = "Invalid name format")
+    @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
     private String name;
 }

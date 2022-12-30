@@ -60,7 +60,7 @@ public class WebController {
     @GetMapping(value = "/playlists")
     public ResponseEntity<CollectionModel<PlaylistResponse>> getAllPlaylists(
             @RequestParam(required = false)
-            @Pattern(regexp = "\\b([a-zA-ZÀ-ÿ][-,a-z. ']+[ ]*)+", message = "Invalid name format")
+            @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
             String name
     ) {
         // get documents
