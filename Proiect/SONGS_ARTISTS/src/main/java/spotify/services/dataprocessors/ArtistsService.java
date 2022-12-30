@@ -75,7 +75,8 @@ public class ArtistsService {
 
     public ArtistEntity createOrReplaceArtist(ArtistEntity artistEntity) {
         // verificare suplimentara doar pt a avea mesaj custom la exceptie; altfel, e returnat in response mesajul exceptiei din bd
-        if (artistsRepository.findByName(artistEntity.getName()) != null) {
+        ArtistEntity artistEntityWithSameName = artistsRepository.findByName(artistEntity.getName());
+        if ((artistEntityWithSameName != null) && (artistEntityWithSameName.getId()!=artistEntity.getId())) {
             throw new ConflictException(artistEntity.getName() + ErrorMessages.NAME_ALREADY_EXISTENT);
         }
 

@@ -40,7 +40,6 @@ import java.util.Set;
 
 
 //TODO
-// do not assign song to an inactive artist
 // logs
 // uuid with type String
 // update functionality
