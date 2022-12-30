@@ -257,17 +257,14 @@ public class WebController {
         // authorize
         authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
-        // query db for an entity with given identifier
-        ArtistEntity artistEntity = artistsService.getArtistById(uuid);
+        // delete artist
+        ArtistEntity artistEntity = artistsService.deleteArtist(uuid);
 
         // map deleted entity to dto
         ArtistResponse artistResponse = artistMapper.toCompleteArtistDto(artistEntity);
 
         // add links
         artistModelAssembler.toModel(artistResponse);
-
-        // delete entity (only mark artist as inactive)
-        artistsService.deleteArtist(artistEntity);
 
         return ResponseEntity.status(HttpStatus.OK).body(artistResponse); // reprezentarea resursei inainte de a fi stearsa
     }
@@ -414,7 +411,7 @@ public class WebController {
         // authorize
         authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
-        // query db for album and artists
+        // query db for album and artists (not continue if either album or artists do not exist)
         SongEntity album = newSong.getParentId() != null ? songsService.getAlbumById(newSong.getParentId()) : null;
         Set<ArtistEntity> artistEntities = artistsService.getArtistsByNameIfActive(newSong.getArtists()); // if artists don't exist, or they are inactive, the song will not be created
 
@@ -450,17 +447,14 @@ public class WebController {
         // authorize
         authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
-        // query db
-        SongEntity songEntity = songsService.getSongById(id);
+        // delete song
+        SongEntity removedSong = songsService.deleteSong(id);
 
         // map entity to dto
-        SongResponse songResponse = songMapper.toCompleteSongDto(songEntity);
+        SongResponse songResponse = songMapper.toCompleteSongDto(removedSong);
 
         // add links
         songModelAssembler.toModel(songResponse);
-
-        // delete song from songs table and also from join table
-        songsService.deleteSong(songEntity);
 
         return ResponseEntity.status(HttpStatus.OK).body(songResponse);
     }

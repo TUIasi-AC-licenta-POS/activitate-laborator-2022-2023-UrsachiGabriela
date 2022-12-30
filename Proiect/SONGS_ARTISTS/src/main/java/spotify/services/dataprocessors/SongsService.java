@@ -94,7 +94,8 @@ public class SongsService {
         return songsRepository.save(songEntity);
     }
 
-    public void deleteSong(SongEntity songEntity) {
+    public SongEntity deleteSong(Integer id) {
+        SongEntity songEntity = getSongById(id);
 
         if (songEntity.getType().equals(MusicType.ALBUM) && !songEntity.getSongEntities().isEmpty()) {
             throw new ConflictException("You are not able to remove this album until you remove all its songs");
@@ -102,6 +103,8 @@ public class SongsService {
 
         artistsService.removeSongFromArtists(songEntity.getId());
         songsRepository.deleteById(songEntity.getId());
+
+        return songEntity;
     }
 
 

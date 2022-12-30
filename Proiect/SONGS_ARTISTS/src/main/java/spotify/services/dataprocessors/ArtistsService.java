@@ -83,9 +83,14 @@ public class ArtistsService {
         return artistsRepository.save(artistEntity);
     }
 
-    public void deleteArtist(ArtistEntity artistEntity) {
+    //delete entity (only mark artist as inactive)
+    public ArtistEntity deleteArtist(Integer id) {
+        ArtistEntity artistEntity = getArtistById(id);
+
         artistEntity.setActive(false);
         artistsRepository.save(artistEntity);
+
+        return artistEntity;
     }
 
     public ArtistEntity addSongsToArtist(ArtistEntity artistEntity, Set<SongEntity> songEntities) {
