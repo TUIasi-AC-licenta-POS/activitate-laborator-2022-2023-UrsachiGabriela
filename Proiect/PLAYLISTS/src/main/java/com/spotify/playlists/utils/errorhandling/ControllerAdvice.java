@@ -1,13 +1,16 @@
 package com.spotify.playlists.utils.errorhandling;
 
 import com.spotify.playlists.utils.errorhandling.customexceptions.ConflictException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.ForbiddenException;
 import com.spotify.playlists.utils.errorhandling.customexceptions.ResourceNotFoundException;
+import com.spotify.playlists.utils.errorhandling.customexceptions.UnauthorizedException;
 import com.spotify.playlists.view.responses.ExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.ws.soap.client.SoapFaultClientException;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Objects;
@@ -61,6 +64,24 @@ public class ControllerAdvice {
         HttpStatus status = ex.getStatusCode();
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);
+    }
+
+    @ExceptionHandler(SoapFaultClientException.class)
+    public ResponseEntity<ExceptionResponse> handleSOAPClientErrorException(SoapFaultClientException ex) {
+        if(Objects.equals(ex.getMessage(), "Invalid token")){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return null;
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ExceptionResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ExceptionResponse> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 }

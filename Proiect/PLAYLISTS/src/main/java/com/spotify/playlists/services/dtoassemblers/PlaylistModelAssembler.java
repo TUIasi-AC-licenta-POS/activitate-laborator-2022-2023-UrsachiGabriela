@@ -26,11 +26,11 @@ public class PlaylistModelAssembler extends RepresentationModelAssemblerSupport<
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(
-                methodOn(WebController.class).getPlaylistById(playlistResponse.getId())
+                methodOn(WebController.class).getPlaylistById(playlistResponse.getId(),null)
         )
                 .withRel("self"));
         links.add(linkTo(
-                methodOn(WebController.class).getAllPlaylists(null))
+                methodOn(WebController.class).getAllPlaylists(null,null))
                 .withRel("parent"));
 
         playlistResponse.add(links);
@@ -41,7 +41,7 @@ public class PlaylistModelAssembler extends RepresentationModelAssemblerSupport<
     @Override
     public CollectionModel<PlaylistResponse> toCollectionModel(Iterable<? extends PlaylistResponse> playlistDTOS) {
         CollectionModel<PlaylistResponse> newPlaylistDTOS = super.toCollectionModel(playlistDTOS);
-        newPlaylistDTOS.add(linkTo(methodOn(WebController.class).getAllPlaylists(null)).withSelfRel());
+        newPlaylistDTOS.add(linkTo(methodOn(WebController.class).getAllPlaylists(null,null)).withSelfRel());
 
         return newPlaylistDTOS;
     }

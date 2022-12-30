@@ -1,14 +1,14 @@
 package com.spotify.playlists.controller;
 
-import com.spotify.playlists.IDMClient;
-import com.spotify.playlists.IDMClientConfig;
 import com.spotify.playlists.model.collections.Playlist;
 import com.spotify.playlists.model.collections.Resource;
 import com.spotify.playlists.services.PlaylistService;
+import com.spotify.playlists.services.authorization.AuthService;
 import com.spotify.playlists.services.clients.RestClient;
 import com.spotify.playlists.services.dtoassemblers.PlaylistModelAssembler;
 import com.spotify.playlists.services.mappers.PlaylistMapper;
 import com.spotify.playlists.services.mappers.SongMapper;
+import com.spotify.playlists.utils.enums.UserRoles;
 import com.spotify.playlists.view.SongRequestResponse;
 import com.spotify.playlists.view.requests.PlaylistRequest;
 import com.spotify.playlists.view.requests.SimpleSongRequest;
@@ -20,8 +20,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.hateoas.CollectionModel;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +31,17 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.util.Set;
 
+//TODO
+// logs
+
+
 @RestController
 @Validated
 @RequestMapping("/api/playlistscollection")
 public class WebController {
+
+    @Autowired
+    private AuthService authService;
 
     // temporary
     private static final String USER_ID = "1";
@@ -61,10 +69,14 @@ public class WebController {
     public ResponseEntity<CollectionModel<PlaylistResponse>> getAllPlaylists(
             @RequestParam(required = false)
             @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
-            String name
-    ) {
+            String name,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        // authorize
+        Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
+
         // get documents
-        Set<Playlist> playlists = playlistService.getAllPlaylists(USER_ID, name);
+        Set<Playlist> playlists = playlistService.getAllPlaylists(userID, name);
 
         // map to dto
         Set<PlaylistResponse> playlistResponses = playlistMapper.toPlaylistDTOSet(playlists);
@@ -84,9 +96,14 @@ public class WebController {
 
             })
     @GetMapping(value = "/playlists/{id}")
-    public ResponseEntity<PlaylistResponse> getPlaylistById(@PathVariable String id) {
+    public ResponseEntity<PlaylistResponse> getPlaylistById(@PathVariable String id,
+                                                            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        // authorize
+        Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
+
         // get document
-        Playlist playlist = playlistService.getPlaylistById(USER_ID, id);
+        Playlist playlist = playlistService.getPlaylistById(userID, id);
 
         // map to dto
         PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(playlist);
@@ -105,12 +122,17 @@ public class WebController {
                     @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @PostMapping("/playlists")
-    public ResponseEntity<PlaylistResponse> createPlaylist(@Valid @RequestBody PlaylistRequest playlistRequest) {
+    public ResponseEntity<PlaylistResponse> createPlaylist(@Valid @RequestBody PlaylistRequest playlistRequest,
+                                                           @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        // authorize
+        Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
+
         // map dto to document
         Playlist playlist = playlistMapper.toPlaylist(playlistRequest);
 
         // insert in db
-        playlist = playlistService.createPlaylist(USER_ID, playlist);
+        playlist = playlistService.createPlaylist(userID, playlist);
 
         // map to dto
         PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(playlist);
@@ -118,7 +140,7 @@ public class WebController {
         // add links
         playlistModelAssembler.toModel(playlistResponse);
 
-        return ResponseEntity.ok().body(playlistResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(playlistResponse);
     }
 
 //    @Operation(summary = "Add songs to an existing playlist - from SA module")
@@ -154,8 +176,13 @@ public class WebController {
                     @ApiResponse(responseCode = "404", description = "Searched playlist not found or given song not existent", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
-    @PatchMapping("/playlists/{id}/songs")
-    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String playlistId, @Validated @RequestBody SimpleSongRequest songRequest) {
+    @PatchMapping("/playlists/{playlistId}/songs")
+    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String playlistId,
+                                                              @Validated @RequestBody SimpleSongRequest songRequest,
+                                                              @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        // authorize
+        Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
+
         // send request
         SongRequestResponse songRequestResponse = restClient.getSongById(songRequest.getSongId());
 
@@ -163,7 +190,7 @@ public class WebController {
         Resource song = songMapper.toSongResource(songRequestResponse);
 
         // update db
-        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, playlistId, song);
+        Playlist updatedPlaylist = playlistService.addSongToPlaylist(userID, playlistId, song);
 
         // map to dto
         PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);
@@ -174,15 +201,27 @@ public class WebController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Add songs to an existing playlist")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "200", description = "Successfully deleted playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+            })
+    @DeleteMapping("/playlists/{playlistId}")
+    public ResponseEntity<PlaylistResponse> deletePlaylist(@PathVariable String playlistId,
+                                                           @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        // authorize
+        Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
 
-    @GetMapping(value = "/1")
-    public ResponseEntity<String> getUserId() {
-        IDMClient idmClientService = new AnnotationConfigApplicationContext(IDMClientConfig.class).getBean(IDMClient.class);
+        Playlist removedPlaylist = playlistService.deletePlaylist(userID, playlistId);
 
-        //idmClientService.setDefaultUri("http://127.0.0.1:8000");
+        // map to dto
+        PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(removedPlaylist);
 
-        String name = idmClientService.getUserInfoResponse("Ana");
-        return ResponseEntity.ok().body(name);
+        // add links
+        playlistModelAssembler.toModel(playlistResponse);
 
+        return ResponseEntity.ok().body(playlistResponse);
     }
 }

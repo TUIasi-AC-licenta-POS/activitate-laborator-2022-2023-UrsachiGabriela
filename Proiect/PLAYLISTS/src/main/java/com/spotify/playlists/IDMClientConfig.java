@@ -1,5 +1,6 @@
 package com.spotify.playlists;
 
+import com.spotify.playlists.services.authorization.IDMClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;

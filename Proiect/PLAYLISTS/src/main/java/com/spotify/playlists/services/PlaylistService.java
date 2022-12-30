@@ -22,12 +22,9 @@ public class PlaylistService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Set<Playlist> getAllPlaylists(String userId, String playlistName) {
-        String collectionName = String.format("user.%s.playlists", userId);
+    public Set<Playlist> getAllPlaylists(Integer userId, String playlistName) {
+        String collectionName = String.format("user.%d.playlists", userId);
 
-        if (!mongoTemplate.collectionExists(collectionName)) {
-            throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
-        }
 
         playlistRepository.setCollectionName(collectionName);
 
@@ -36,15 +33,12 @@ public class PlaylistService {
         }
 
         List<Playlist> playlists = playlistRepository.findAllByNameContaining(playlistName);
-        if (playlists.isEmpty()) {
-            throw new ResourceNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + playlistName);
-        }
-        return new HashSet<>(playlists);
 
+        return new HashSet<>(playlists);
     }
 
-    public Playlist getPlaylistById(String userId, String id) {
-        String collectionName = String.format("user.%s.playlists", userId);
+    public Playlist getPlaylistById(Integer userId, String id) {
+        String collectionName = String.format("user.%d.playlists", userId);
 
         if (!mongoTemplate.collectionExists(collectionName)) {
             throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
@@ -61,8 +55,8 @@ public class PlaylistService {
         return playlist.get();
     }
 
-    public Playlist createPlaylist(String userId, Playlist playlist) {
-        String collectionName = String.format("user.%s.playlists", userId);
+    public Playlist createPlaylist(Integer userId, Playlist playlist) {
+        String collectionName = String.format("user.%d.playlists", userId);
 
         playlistRepository.setCollectionName(collectionName);
 
@@ -74,8 +68,8 @@ public class PlaylistService {
         return playlistRepository.save(playlist);
     }
 
-    public Playlist addSongToPlaylist(String userId, String id, Resource resource) {
-        String collectionName = String.format("user.%s.playlists", userId);
+    public Playlist addSongToPlaylist(Integer userId, String id, Resource resource) {
+        String collectionName = String.format("user.%d.playlists", userId);
         playlistRepository.setCollectionName(collectionName);
 
         if (!mongoTemplate.collectionExists(collectionName)) {
@@ -90,6 +84,25 @@ public class PlaylistService {
 
         playlist.get().getFavSongs().add(resource);
         return playlistRepository.save(playlist.get());
+    }
+
+    public Playlist deletePlaylist(Integer userId, String id) {
+        String collectionName = String.format("user.%d.playlists", userId);
+
+        if (!mongoTemplate.collectionExists(collectionName)) {
+            throw new ResourceNotFoundException(ErrorMessages.COLLECTION_NOT_FOUND);
+        }
+
+        playlistRepository.setCollectionName(collectionName);
+
+        Optional<Playlist> playlist = playlistRepository.findById(id);
+
+        if (!playlist.isPresent()) {
+            throw new ResourceNotFoundException(ErrorMessages.PLAYLIST_NOT_FOUND + id);
+        }
+
+        playlistRepository.deleteById(id);
+        return playlist.get();
     }
 
 //    public Playlist deleteSongFromPlaylist(String userId, String playlistId, Resource resource){
