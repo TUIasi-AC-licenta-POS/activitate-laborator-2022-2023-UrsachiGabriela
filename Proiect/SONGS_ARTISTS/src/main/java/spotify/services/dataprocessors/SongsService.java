@@ -36,12 +36,12 @@ public class SongsService {
         return new HashSet<>(songsRepository.findAll());
     }
 
-    public Page<SongEntity> getPageableSongs2(Integer page, Integer pageSize, String searchBy, String searchedValue, String match) {
+    public Page<SongEntity> getPageableSongs(Integer page, Integer pageSize, String searchBy, String searchedValue, String match) {
         Pageable paging = getPageable(page, pageSize);
 
         if (searchBy == null || searchedValue == null) {
             // display all without conditions
-            return getPageableSongs(paging);
+            return getPageableSongsWithoutCondition(paging);
 
         } else {
             // validate type of searched value for given searchedBy param
@@ -54,7 +54,7 @@ public class SongsService {
         }
     }
 
-    private Page<SongEntity> getPageableSongs(Pageable paging) {
+    private Page<SongEntity> getPageableSongsWithoutCondition(Pageable paging) {
         return songsRepository.findAll(paging);
     }
 

@@ -5,10 +5,7 @@ import spotify.utils.enums.MusicGenre;
 import spotify.utils.enums.MusicType;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.util.Set;
 
 @Data
@@ -18,6 +15,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 public class NewSongRequest {
     @NotBlank(message = "Song name should not be empty")
+    @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid song name format")
     private String name;
 
     @NotNull(message = "Music genre should not be null")

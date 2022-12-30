@@ -1,6 +1,5 @@
 package spotify.controller;
 
-import com.spotify.idmclient.wsdl.AuthorizeResp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,7 +7,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedModel;
@@ -17,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import spotify.IDMClient;
-import spotify.configs.IDMClientConfig;
 import spotify.model.entities.ArtistEntity;
 import spotify.model.entities.SongEntity;
 import spotify.services.authorization.AuthService;
@@ -40,8 +36,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -109,7 +103,7 @@ public class WebController {
             Integer size,
 
             @RequestParam(required = false)
-            @Pattern(regexp = "^[a-zA-Z\\\\s]*", message = "Invalid name format")
+            @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
             String name,
 
             @Pattern(regexp = "exact", message = "Invalid match")
@@ -357,7 +351,7 @@ public class WebController {
         log.info("[{}] -> GET, getAllSongs", this.getClass().getSimpleName());
 
         // query database
-        Page<SongEntity> songEntities = songsService.getPageableSongs2(page,size,searchBy,searchedValue,match);
+        Page<SongEntity> songEntities = songsService.getPageableSongs(page,size,searchBy,searchedValue,match);
 
         // map entities to dtos
         Page<SongResponse> songDTOPage = songEntities.map(songMapper::toCompleteSongDto);
