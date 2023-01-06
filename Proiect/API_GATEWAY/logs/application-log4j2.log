@@ -1,0 +1,20 @@
+2023-01-06 22:19:32 [background-preinit] INFO  : HV000001: Hibernate Validator 6.2.5.Final
+2023-01-06 22:19:32 [main] INFO  : Starting SpotifyApplication using Java 18.0.2-ea on gabi-HP-EliteBook-820-G2 with PID 52953 (/home/gabi/Facultate/POS/API_GATEWAY/target/classes started by gabi in /home/gabi/Facultate/POS/API_GATEWAY)
+2023-01-06 22:19:32 [main] INFO  : No active profile set, falling back to 1 default profile: "default"
+2023-01-06 22:19:33 [main] INFO  : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$d2149833] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-01-06 22:19:33 [main] INFO  : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2023-01-06 22:19:34 [main] INFO  : Tomcat initialized with port(s): 8082 (http)
+2023-01-06 22:19:34 [main] INFO  : Initializing ProtocolHandler ["http-nio-8082"]
+2023-01-06 22:19:34 [main] INFO  : Starting service [Tomcat]
+2023-01-06 22:19:34 [main] INFO  : Starting Servlet engine: [Apache Tomcat/9.0.68]
+2023-01-06 22:19:34 [main] INFO  : Initializing Spring embedded WebApplicationContext
+2023-01-06 22:19:34 [main] INFO  : Root WebApplicationContext: initialization completed in 2180 ms
+2023-01-06 22:19:35 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
+2023-01-06 22:19:35 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
+2023-01-06 22:19:37 [main] INFO  : Starting ProtocolHandler ["http-nio-8082"]
+2023-01-06 22:19:37 [main] INFO  : Tomcat started on port(s): 8082 (http) with context path ''
+2023-01-06 22:19:37 [main] INFO  : Started SpotifyApplication in 5.708 seconds (JVM running for 6.814)
+2023-01-06 22:19:42 [http-nio-8082-exec-3] INFO  : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-01-06 22:19:42 [http-nio-8082-exec-3] INFO  : Initializing Servlet 'dispatcherServlet'
+2023-01-06 22:19:42 [http-nio-8082-exec-3] INFO  : Completed initialization in 2 ms
+2023-01-06 22:19:42 [http-nio-8082-exec-3] INFO  : [SongController] -> GET, getAllSongs: page:0, size:100, searchBy:null, searchedValue:null, match:null
