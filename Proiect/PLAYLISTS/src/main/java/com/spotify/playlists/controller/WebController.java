@@ -15,6 +15,7 @@ import com.spotify.playlists.view.requests.SimpleSongRequest;
 import com.spotify.playlists.view.responses.ExceptionResponse;
 import com.spotify.playlists.view.responses.PlaylistResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -61,7 +62,7 @@ public class WebController {
     @Operation(summary = "Get all playlists")
     @ApiResponses(value =
             {
-                    @ApiResponse(responseCode = "200", description = "Found playlists", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
+                    @ApiResponse(responseCode = "200", description = "Found playlists", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = PlaylistResponse.class)))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for query params", content = @Content),
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
@@ -201,7 +202,7 @@ public class WebController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Add songs to an existing playlist")
+    @Operation(summary = "Delete playlist")
     @ApiResponses(value =
             {
                     @ApiResponse(responseCode = "200", description = "Successfully deleted playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),

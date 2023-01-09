@@ -27,7 +27,7 @@ class IDMService(ServiceBase):
         role = get_role_by_name(urole)
 
         if role is None:
-            raise spyne.Fault(faultcode='Client', faultstring="This role doesn't exist")
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
 
         if role.rname not in [Roles.CLIENT.name, Roles.ARTIST.name]:
             raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
