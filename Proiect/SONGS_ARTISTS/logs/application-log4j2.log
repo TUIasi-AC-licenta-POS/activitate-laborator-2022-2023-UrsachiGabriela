@@ -1,40 +1,55 @@
-2022-12-30 22:41:37 [background-preinit] INFO  : HV000001: Hibernate Validator 6.2.5.Final
-2022-12-30 22:41:37 [main] INFO  : Starting SpotifyApplication using Java 18.0.2-ea on gabi-HP-EliteBook-820-G2 with PID 32593 (/home/gabi/Facultate/POS/POS_homeworks/activitate-laborator-2022-2023-UrsachiGabriela/Proiect/SONGS_ARTISTS/target/classes started by gabi in /home/gabi/Facultate/POS/POS_homeworks/activitate-laborator-2022-2023-UrsachiGabriela/Proiect/SONGS_ARTISTS)
-2022-12-30 22:41:37 [main] INFO  : No active profile set, falling back to 1 default profile: "default"
-2022-12-30 22:41:38 [main] INFO  : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2022-12-30 22:41:38 [main] INFO  : Finished Spring Data repository scanning in 75 ms. Found 2 JPA repository interfaces.
-2022-12-30 22:41:39 [main] INFO  : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$d935fe96] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
-2022-12-30 22:41:39 [main] INFO  : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2022-12-30 22:41:39 [main] INFO  : Tomcat initialized with port(s): 8080 (http)
-2022-12-30 22:41:39 [main] INFO  : Initializing ProtocolHandler ["http-nio-8080"]
-2022-12-30 22:41:39 [main] INFO  : Starting service [Tomcat]
-2022-12-30 22:41:39 [main] INFO  : Starting Servlet engine: [Apache Tomcat/9.0.68]
-2022-12-30 22:41:39 [main] INFO  : Initializing Spring embedded WebApplicationContext
-2022-12-30 22:41:39 [main] INFO  : Root WebApplicationContext: initialization completed in 2412 ms
-2022-12-30 22:41:40 [main] INFO  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2022-12-30 22:41:40 [main] INFO  : HHH000412: Hibernate ORM core version 5.6.12.Final
-2022-12-30 22:41:40 [main] INFO  : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
-2022-12-30 22:41:40 [main] INFO  : HikariPool-1 - Starting...
-2022-12-30 22:41:40 [main] INFO  : HikariPool-1 - Start completed.
-2022-12-30 22:41:40 [main] INFO  : HHH000400: Using dialect: org.hibernate.dialect.MariaDB106Dialect
-2022-12-30 22:41:41 [main] INFO  : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
-2022-12-30 22:41:41 [main] INFO  : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2022-12-30 22:41:41 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
-2022-12-30 22:41:42 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
-2022-12-30 22:41:42 [main] WARN  : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2022-12-30 22:41:43 [main] INFO  : Starting ProtocolHandler ["http-nio-8080"]
-2022-12-30 22:41:43 [main] INFO  : Tomcat started on port(s): 8080 (http) with context path ''
-2022-12-30 22:41:43 [main] INFO  : Started SpotifyApplication in 7.202 seconds (JVM running for 8.425)
-2022-12-30 22:41:57 [http-nio-8080-exec-2] INFO  : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2022-12-30 22:41:57 [http-nio-8080-exec-2] INFO  : Initializing Servlet 'dispatcherServlet'
-2022-12-30 22:41:57 [http-nio-8080-exec-2] INFO  : Completed initialization in 2 ms
-2022-12-30 22:41:57 [http-nio-8080-exec-2] INFO  : [WebController] -> DELETE, deleteSong, songId:56
-2022-12-30 22:42:07 [http-nio-8080-exec-3] INFO  : [WebController] -> GET, getAllArtists
-2022-12-30 22:42:16 [http-nio-8080-exec-4] INFO  : [WebController] -> GET, getAllArtists
-2022-12-30 22:42:27 [http-nio-8080-exec-5] INFO  : [WebController] -> DELETE, deleteArtist, uuid:3
-2022-12-30 22:42:33 [http-nio-8080-exec-6] INFO  : [WebController] -> DELETE, deleteSong, songId:56
-2022-12-30 22:42:40 [http-nio-8080-exec-7] INFO  : [WebController] -> DELETE, deleteArtist, uuid:3
-2022-12-30 22:42:42 [http-nio-8080-exec-8] INFO  : [WebController] -> DELETE, deleteArtist, uuid:3
-2022-12-30 22:43:19 [SpringApplicationShutdownHook] INFO  : Closing JPA EntityManagerFactory for persistence unit 'default'
-2022-12-30 22:43:19 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown initiated...
-2022-12-30 22:43:19 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown completed.
+2023-01-09 15:32:32 [background-preinit] INFO  : HV000001: Hibernate Validator 6.2.5.Final
+2023-01-09 15:32:32 [main] INFO  : Starting SpotifyApplication using Java 18.0.2-ea on gabi-HP-EliteBook-820-G2 with PID 6014 (/home/gabi/Facultate/POS/POS_homeworks/activitate-laborator-2022-2023-UrsachiGabriela/Proiect/SONGS_ARTISTS/target/classes started by gabi in /home/gabi/Facultate/POS/POS_homeworks/activitate-laborator-2022-2023-UrsachiGabriela/Proiect/SONGS_ARTISTS)
+2023-01-09 15:32:32 [main] INFO  : No active profile set, falling back to 1 default profile: "default"
+2023-01-09 15:32:35 [main] INFO  : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-01-09 15:32:35 [main] INFO  : Finished Spring Data repository scanning in 73 ms. Found 2 JPA repository interfaces.
+2023-01-09 15:32:35 [main] INFO  : Bean 'org.springframework.ws.config.annotation.DelegatingWsConfiguration' of type [org.springframework.ws.config.annotation.DelegatingWsConfiguration$$EnhancerBySpringCGLIB$$b15f1828] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2023-01-09 15:32:35 [main] INFO  : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2023-01-09 15:32:36 [main] INFO  : Tomcat initialized with port(s): 8080 (http)
+2023-01-09 15:32:36 [main] INFO  : Initializing ProtocolHandler ["http-nio-8080"]
+2023-01-09 15:32:36 [main] INFO  : Starting service [Tomcat]
+2023-01-09 15:32:36 [main] INFO  : Starting Servlet engine: [Apache Tomcat/9.0.68]
+2023-01-09 15:32:36 [main] INFO  : Initializing Spring embedded WebApplicationContext
+2023-01-09 15:32:36 [main] INFO  : Root WebApplicationContext: initialization completed in 4185 ms
+2023-01-09 15:32:37 [main] INFO  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-01-09 15:32:37 [main] INFO  : HHH000412: Hibernate ORM core version 5.6.12.Final
+2023-01-09 15:32:37 [main] INFO  : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-01-09 15:32:37 [main] INFO  : HikariPool-1 - Starting...
+2023-01-09 15:32:38 [main] INFO  : HikariPool-1 - Start completed.
+2023-01-09 15:32:38 [main] INFO  : HHH000400: Using dialect: org.hibernate.dialect.MariaDB106Dialect
+2023-01-09 15:32:38 [main] INFO  : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-01-09 15:32:38 [main] INFO  : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-01-09 15:32:39 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
+2023-01-09 15:32:39 [main] INFO  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
+2023-01-09 15:32:40 [main] WARN  : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-01-09 15:32:41 [main] INFO  : Starting ProtocolHandler ["http-nio-8080"]
+2023-01-09 15:32:41 [main] INFO  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-01-09 15:32:41 [main] INFO  : Started SpotifyApplication in 10.676 seconds (JVM running for 12.345)
+2023-01-09 15:32:58 [http-nio-8080-exec-1] INFO  : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-01-09 15:32:58 [http-nio-8080-exec-1] INFO  : Initializing Servlet 'dispatcherServlet'
+2023-01-09 15:32:58 [http-nio-8080-exec-1] INFO  : Completed initialization in 1 ms
+2023-01-09 15:33:05 [http-nio-8080-exec-3] INFO  : [ArtistsController] -> GET, getAllArtists: page:0, size:9, name:null, match:null
+2023-01-09 15:33:45 [http-nio-8080-exec-4] INFO  : [ArtistsController] -> GET, getArtistById, id:3
+2023-01-09 15:34:02 [http-nio-8080-exec-5] INFO  : [ArtistsController] -> GET, getArtistById, id:2
+2023-01-09 15:34:21 [http-nio-8080-exec-6] INFO  : [ArtistsController] -> GET, getArtistById, id:192
+2023-01-09 15:34:28 [http-nio-8080-exec-7] INFO  : [SongsController] -> GET, getSongById, songId:54999
+2023-01-09 15:34:31 [http-nio-8080-exec-8] INFO  : [SongsController] -> GET, getSongById, songId:54
+2023-01-09 15:35:07 [http-nio-8080-exec-9] INFO  : [SongsController] -> GET, getAllArtistsForGivenSong, songId:54
+2023-01-09 15:35:16 [http-nio-8080-exec-10] INFO  : [SongsController] -> GET, getAllSongs: page:0, size:100, searchBy:title, searchedValue:hee, match:exact
+2023-01-09 15:35:20 [http-nio-8080-exec-2] INFO  : [ArtistsController] -> GET, getAllSongsForGivenArtist, artistId:2
+2023-01-09 15:35:49 [http-nio-8080-exec-1] WARN  : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'application/xml;charset=UTF-8' not supported]
+2023-01-09 15:36:05 [http-nio-8080-exec-3] INFO  : [ArtistsController] -> PUT, createOrReplaceArtist, uuid:1924133, artist:NewArtistRequest(name=Rihanna-Soppdd, active=true)
+2023-01-09 15:36:05 [http-nio-8080-exec-3] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjMtMDEtMDdUMTE6MzY6MTMuNzU2MDMyIiwgImp0aSI6ICI4OTNhYWVkMi04ZTZhLTExZWQtOTMyOS02NWQ3ZGRmY2U1YmEiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.6XLZqGLnOMDQyRpJE-TpPjCyt1TQIZrvTQzrFuNfcF0
+2023-01-09 15:36:30 [http-nio-8080-exec-4] INFO  : [ArtistsController] -> PUT, createOrReplaceArtist, uuid:1924133, artist:NewArtistRequest(name=Rihanna-Soppdd, active=true)
+2023-01-09 15:36:30 [http-nio-8080-exec-4] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjMtMDEtMDlUMTY6MDY6MTguMzE4NjIwIiwgImp0aSI6ICI5OGJhN2U4Mi05MDIyLTExZWQtYjI0Ni05NWFlYzEzMTk0MDIiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.b6wGsvBn4tXSWIC5c0CPuP5Ya0VpPm3HhM2CLlEZ3hA
+2023-01-09 15:36:36 [http-nio-8080-exec-5] INFO  : [ArtistsController] -> PUT, createOrReplaceArtist, uuid:1924133, artist:NewArtistRequest(name=Rihanna-Soppdd, active=true)
+2023-01-09 15:36:36 [http-nio-8080-exec-5] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjMtMDEtMDlUMTY6MDY6MTguMzE4NjIwIiwgImp0aSI6ICI5OGJhN2U4Mi05MDIyLTExZWQtYjI0Ni05NWFlYzEzMTk0MDIiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.b6wGsvBn4tXSWIC5c0CPuP5Ya0VpPm3HhM2CLlEZ3hA
+2023-01-09 15:36:39 [http-nio-8080-exec-6] INFO  : [ArtistsController] -> PUT, createOrReplaceArtist, uuid:1924133, artist:NewArtistRequest(name=Rihanna-Soppdd, active=true)
+2023-01-09 15:36:39 [http-nio-8080-exec-6] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjMtMDEtMDlUMTY6MDY6MTguMzE4NjIwIiwgImp0aSI6ICI5OGJhN2U4Mi05MDIyLTExZWQtYjI0Ni05NWFlYzEzMTk0MDIiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.b6wGsvBn4tXSWIC5c0CPuP5Ya0VpPm3HhM2CLlEZ3hA
+2023-01-09 15:36:44 [http-nio-8080-exec-7] INFO  : [ArtistsController] -> PUT, createOrReplaceArtist, uuid:19241339, artist:NewArtistRequest(name=Rihanna-Soppdd, active=true)
+2023-01-09 15:36:44 [http-nio-8080-exec-7] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjMtMDEtMDlUMTY6MDY6MTguMzE4NjIwIiwgImp0aSI6ICI5OGJhN2U4Mi05MDIyLTExZWQtYjI0Ni05NWFlYzEzMTk0MDIiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.b6wGsvBn4tXSWIC5c0CPuP5Ya0VpPm3HhM2CLlEZ3hA
+2023-01-09 15:36:51 [http-nio-8080-exec-8] INFO  : [ArtistsController] -> DELETE, deleteArtist, uuid:3
+2023-01-09 15:36:51 [http-nio-8080-exec-8] INFO  : [AuthService] -> authorize: authHeader:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDAwIiwgInN1YiI6IDM4LCAiZXhwIjogIjIwMjItMTItMzBUMjM6MDM6NDEuNjUwNjM2IiwgImp0aSI6ICIzZjg5Y2I3Yy04ODgxLTExZWQtYTMxNS05OTZhYWFhODkxNTAiLCAicm9sZXMiOiBbIkNPTlRFTlRfTUFOQUdFUiIsICJBUlRJU1QiLCAiQ0xJRU5UIl19.cuF0bHlrD9nv1QIOxQCRhvjkAFXx6TtP41jI6y38m8Q
+2023-01-09 15:37:02 [SpringApplicationShutdownHook] INFO  : Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-01-09 15:37:02 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown initiated...
+2023-01-09 15:37:02 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown completed.

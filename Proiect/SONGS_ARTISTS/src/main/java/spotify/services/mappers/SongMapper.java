@@ -6,6 +6,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import spotify.model.entities.SongEntity;
+import spotify.utils.enums.MusicGenre;
+import spotify.utils.enums.MusicType;
+import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.view.requests.NewSongRequest;
 import spotify.view.responses.SongResponse;
 
@@ -34,12 +37,24 @@ public interface SongMapper {
         SongEntity songEntity = new SongEntity();
 
         songEntity.setName(newSongRequest.getName());
-        songEntity.setGenre(newSongRequest.getGenre());
+        try{
+            songEntity.setGenre(MusicGenre.valueOf(newSongRequest.getGenre()));
+        }
+        catch (Exception e){
+            throw new UnprocessableContentException("Invalid genre");
+        }
+
         if (newSongRequest.getYear() != null) {
             songEntity.setYear(newSongRequest.getYear());
         }
 
-        songEntity.setType(newSongRequest.getType());
+        try{
+            songEntity.setType(MusicType.valueOf(newSongRequest.getType()));
+        }
+        catch (Exception e){
+            throw new UnprocessableContentException("Invalid type");
+
+        }
         songEntity.setParent(album);
 
         return songEntity;

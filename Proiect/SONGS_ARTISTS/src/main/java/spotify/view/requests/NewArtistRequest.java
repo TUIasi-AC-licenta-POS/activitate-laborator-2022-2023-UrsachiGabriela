@@ -13,8 +13,6 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@JsonRootName(value = "artist")
-@Relation(collectionRelation = "artists")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NewArtistRequest {
     @NotBlank(message = "Artist name should not be empty")

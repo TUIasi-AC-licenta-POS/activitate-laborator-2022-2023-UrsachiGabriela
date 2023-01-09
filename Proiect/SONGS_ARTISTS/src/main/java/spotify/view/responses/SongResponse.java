@@ -15,8 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@JsonRootName(value = "song")
-@Relation(collectionRelation = "songs")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SongResponse extends RepresentationModel<SongResponse> {
     private Integer id;

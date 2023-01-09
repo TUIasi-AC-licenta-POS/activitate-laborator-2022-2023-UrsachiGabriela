@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@JsonRootName(value = "artist")
-@Relation(collectionRelation = "artists")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NewSongsForArtistRequest {
     @NotEmpty(message = "Song list should not be empty")

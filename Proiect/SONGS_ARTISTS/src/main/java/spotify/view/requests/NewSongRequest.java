@@ -19,14 +19,14 @@ public class NewSongRequest {
     private String name;
 
     @NotNull(message = "Music genre should not be null")
-    private MusicGenre genre;
+    private String genre;
 
     @Min(value = 0, message = "Invalid year")
     @Max(value = 9999, message = "Invalid year")
     private Integer year;
 
     @NotNull(message = "Music type should not be null")
-    private MusicType type;
+    private String type;
 
     private @Valid Integer parentId;
 

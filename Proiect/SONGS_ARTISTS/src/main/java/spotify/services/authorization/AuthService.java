@@ -1,6 +1,7 @@
 package spotify.services.authorization;
 
 import com.spotify.idmclient.wsdl.AuthorizeResp;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
@@ -12,11 +13,14 @@ import spotify.utils.errorhandling.customexceptions.UnauthorizedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Component
 public class AuthService {
     private final IDMClient idmClient = new AnnotationConfigApplicationContext(IDMClientConfig.class).getBean(IDMClient.class);
 
     public void authorize(String authHeader, UserRoles... validRoles) {
+        log.info("[{}] -> authorize: authHeader:{}", this.getClass().getSimpleName(),authHeader);
+
         verifyHeaderExistence(authHeader);
 
         // if authorization header is present, then we extract the token and call soap service for its validation

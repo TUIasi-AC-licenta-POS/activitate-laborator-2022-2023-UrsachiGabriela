@@ -4,7 +4,7 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
-import spotify.controller.WebController;
+import spotify.controller.SongsController;
 import spotify.view.responses.SongResponse;
 
 import java.util.ArrayList;
@@ -16,14 +16,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Component
 public class SongModelAssembler extends RepresentationModelAssemblerSupport<SongResponse, SongResponse> {
     public SongModelAssembler() {
-        super(WebController.class, SongResponse.class);
+        super(SongsController.class, SongResponse.class);
     }
 
 
     public void toSimpleModel(SongResponse songResponse) {
         List<Link> links = new ArrayList<>();
 
-        links.add(linkTo(methodOn(WebController.class)
+        links.add(linkTo(methodOn(SongsController.class)
                 .getSongById(songResponse.getId()))
                 .withSelfRel());
 
@@ -36,13 +36,13 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
 
         toSimpleModel(songResponse);
 
-        links.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null,null, null)).withRel("parent"));
+        links.add(linkTo(methodOn(SongsController.class).getAllSongs(null, null, null, null, null)).withRel("parent"));
         if (songResponse.getParentId() != null) {
-            links.add(linkTo(methodOn(WebController.class)
+            links.add(linkTo(methodOn(SongsController.class)
                     .getSongById(songResponse.getParentId()))
                     .withRel("album"));
         }
-        links.add(linkTo(methodOn(WebController.class).getAllArtistsForGivenSong(songResponse.getId())).withRel("artists"));
+        links.add(linkTo(methodOn(SongsController.class).getAllArtistsForGivenSong(songResponse.getId())).withRel("artists"));
         links.add(Link.of("http://localhost:8081/api/playlistscollection/playlists/{playlistId}/songs").withRel("add to playlist").withType("PATCH"));
         songResponse.add(links);
 
@@ -53,14 +53,14 @@ public class SongModelAssembler extends RepresentationModelAssemblerSupport<Song
         List<Link> links = new ArrayList<>();
 
         toModel(songResponse);
-        links.add(linkTo(methodOn(WebController.class).deleteSong(songResponse.getId(),null)).withRel("delete song").withType("DELETE"));
+        links.add(linkTo(methodOn(SongsController.class).deleteSong(songResponse.getId(), null)).withRel("delete song").withType("DELETE"));
         songResponse.add(links);
     }
 
     @Override
     public CollectionModel<SongResponse> toCollectionModel(Iterable<? extends SongResponse> songDTOS) {
         CollectionModel<SongResponse> newSongDTOS = super.toCollectionModel(songDTOS);
-        newSongDTOS.add(linkTo(methodOn(WebController.class).getAllSongs(null, null, null, null,null)).withSelfRel());
+        newSongDTOS.add(linkTo(methodOn(SongsController.class).getAllSongs(null, null, null, null, null)).withSelfRel());
 
         return newSongDTOS;
     }
