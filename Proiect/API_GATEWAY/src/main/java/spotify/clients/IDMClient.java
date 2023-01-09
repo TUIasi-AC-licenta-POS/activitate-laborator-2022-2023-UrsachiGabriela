@@ -1,12 +1,20 @@
 package spotify.clients;
 
 import com.spotify.idmclient.wsdl.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.SerializationUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import spotify.utils.Urls;
+import spotify.utils.enums.UserRoles;
+import spotify.utils.errorhandling.InvalidEnumException;
 import spotify.view.requests.LoginRequest;
+import spotify.view.requests.RegisterRequest;
+import spotify.view.responses.ExceptionResponse;
 import spotify.view.responses.LoginResponse;
 
 import javax.xml.bind.JAXBElement;
+import java.nio.charset.Charset;
 
 public class IDMClient  extends WebServiceGatewaySupport {
 
@@ -25,6 +33,24 @@ public class IDMClient  extends WebServiceGatewaySupport {
         AuthorizeResponse response = responseJAXBElement.getValue();
 
         return response.getAuthorizeResult().getValue();
+    }
+
+    public void register(RegisterRequest registerRequest){
+        RegisterUser registerUser = new RegisterUser();
+        registerUser.setUname(OBJECT_FACTORY.createRegisterUserUname(registerRequest.getName()));
+        registerUser.setUpass(OBJECT_FACTORY.createRegisterUserUpass(registerRequest.getPassword()));
+
+        try{
+            registerUser.setUrole(OBJECT_FACTORY.createRegisterUserUrole(UserRoles.valueOf(registerRequest.getRole()).name()));
+        }
+        catch (Exception e){
+            throw new InvalidEnumException("Invalid role");
+        }
+
+        JAXBElement<RegisterUser> request = OBJECT_FACTORY.createRegisterUser(registerUser);
+        JAXBElement<RegisterUserResponse> responseJAXBElement = (JAXBElement<RegisterUserResponse>) getWebServiceTemplate().marshalSendAndReceive(Urls.IDM_REQUEST_URL,request);
+
+        RegisterUserResponse response = responseJAXBElement.getValue();
     }
 
     public LoginResponse login(LoginRequest loginRequest){
@@ -54,4 +80,6 @@ public class IDMClient  extends WebServiceGatewaySupport {
 
         return response.getLogoutResult().getValue();
     }
+
+
 }

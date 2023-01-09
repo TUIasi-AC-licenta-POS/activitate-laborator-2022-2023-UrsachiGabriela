@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotBlank;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -14,7 +14,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArtistResponse extends RepresentationModel<ArtistResponse> {
-    private Integer id;
+    private UUID uuid;
 
     private String name;
 

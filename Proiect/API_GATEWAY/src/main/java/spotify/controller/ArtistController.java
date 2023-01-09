@@ -12,6 +12,8 @@ import spotify.clients.SongsArtistsClient;
 import spotify.view.requests.NewArtistRequest;
 import spotify.view.responses.ArtistResponse;
 
+import java.util.UUID;
+
 @Log4j2
 @RestController
 @Validated
@@ -40,7 +42,7 @@ public class ArtistController {
 
 
     @PutMapping("/{uuid}")
-    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid,
+    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable UUID uuid,
                                                           @RequestBody NewArtistRequest newArtist,
                                                           @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
 

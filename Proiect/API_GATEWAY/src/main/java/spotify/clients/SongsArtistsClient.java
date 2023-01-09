@@ -16,6 +16,7 @@ import spotify.view.responses.ArtistResponse;
 import spotify.view.responses.SongResponse;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class SongsArtistsClient {
@@ -66,7 +67,7 @@ public class SongsArtistsClient {
         return restTemplate.exchange(url.toString(), HttpMethod.GET, null, responseType);
     }
 
-    public ResponseEntity<ArtistResponse> createArtist(Integer uuid, NewArtistRequest newArtistRequest, String authorizationHeader) {
+    public ResponseEntity<ArtistResponse> createArtist(UUID uuid, NewArtistRequest newArtistRequest, String authorizationHeader) {
 
 
         UriComponents url = UriComponentsBuilder.fromHttpUrl(Urls.ARTIST_REQUEST)

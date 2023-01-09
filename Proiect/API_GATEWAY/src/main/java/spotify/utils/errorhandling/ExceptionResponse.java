@@ -2,12 +2,14 @@ package spotify.utils.errorhandling;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false)
-public class ExceptionResponse{
+@ToString
+public class ExceptionResponse implements Serializable {
     String error;
     Integer status;
     String details;
