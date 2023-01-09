@@ -17,15 +17,15 @@ public class NewSongRequest {
     private String name;
 
 
-    private MusicGenre genre;
+    private String genre;
 
 
     private Integer year;
 
 
-    private MusicType type;
+    private String type;
 
-    private @Valid Integer parentId;
+    private Integer parentId;
 
 
     private Set<String> artists;
