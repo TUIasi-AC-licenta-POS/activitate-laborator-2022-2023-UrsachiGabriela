@@ -10,6 +10,7 @@ import spotify.view.requests.NewArtistRequest;
 import spotify.view.responses.ArtistResponse;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Mapper(uses = {SongMapper.class})
 public interface ArtistMapper {
@@ -23,7 +24,7 @@ public interface ArtistMapper {
     @Named("artistWithSongs")
     default ArtistResponse toArtistWithSongsDto(ArtistEntity artistEntity) {
         return ArtistResponse.builder()
-                .id(artistEntity.getId())
+                .uuid(UUID.fromString(artistEntity.getUuid()))
                 .hasSongs(!artistEntity.getSongs().isEmpty())
                 .songs(SongMapper.INSTANCE.toSimpleSongDTOSet(artistEntity.getSongs()))
                 .build();
@@ -32,7 +33,7 @@ public interface ArtistMapper {
     @Named("artistWithoutSongs")
     default ArtistResponse toArtistWithoutSongsDto(ArtistEntity artistEntity) {
         return ArtistResponse.builder()
-                .id(artistEntity.getId())
+                .uuid(UUID.fromString(artistEntity.getUuid()))
                 .name(artistEntity.getName())
                 .active(artistEntity.isActive())
                 .hasSongs(!artistEntity.getSongs().isEmpty())
@@ -42,16 +43,16 @@ public interface ArtistMapper {
     @Named("artistWithName")
     default ArtistResponse toArtistWithName(ArtistEntity artistEntity) {
         return ArtistResponse.builder()
-                .id(artistEntity.getId())
+                .uuid(UUID.fromString(artistEntity.getUuid()))
                 .name(artistEntity.getName())
                 .build();
     }
 
     ArtistEntity toArtistEntity(ArtistResponse artistResponse);
 
-    default ArtistEntity toArtistEntity(NewArtistRequest newArtistRequest,int uuid){
+    default ArtistEntity toArtistEntity(NewArtistRequest newArtistRequest, UUID uuid){
         ArtistEntity artistEntity = toArtistEntity(newArtistRequest);
-        artistEntity.setId(uuid);
+        artistEntity.setUuid(String.valueOf(uuid));
         return artistEntity;
     }
 

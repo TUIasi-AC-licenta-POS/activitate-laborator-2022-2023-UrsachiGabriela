@@ -49,8 +49,8 @@ public class ArtistsService {
         }
     }
 
-    public ArtistEntity getArtistById(int uuid) {
-        Optional<ArtistEntity> artistEntity = artistsRepository.findById(uuid);
+    public ArtistEntity getArtistByUUID(UUID uuid) {
+        Optional<ArtistEntity> artistEntity = artistsRepository.findById(uuid.toString());
 
         if (!artistEntity.isPresent()) {
             throw new EntityNotFoundException(ErrorMessages.ARTIST_NOT_FOUND + uuid);
@@ -69,14 +69,14 @@ public class ArtistsService {
         return artistEntity;
     }
 
-    public boolean itExistsArtist(int uuid) {
-        return artistsRepository.findById(uuid).isPresent();
+    public boolean itExistsArtist(UUID uuid) {
+        return artistsRepository.findById(uuid.toString()).isPresent();
     }
 
     public ArtistEntity createOrReplaceArtist(ArtistEntity artistEntity) {
         // verificare suplimentara doar pt a avea mesaj custom la exceptie; altfel, e returnat in response mesajul exceptiei din bd
         ArtistEntity artistEntityWithSameName = artistsRepository.findByName(artistEntity.getName());
-        if ((artistEntityWithSameName != null) && (artistEntityWithSameName.getId()!=artistEntity.getId())) {
+        if ((artistEntityWithSameName != null) && (!Objects.equals(artistEntityWithSameName.getUuid(), artistEntity.getUuid()))) {
             throw new ConflictException(artistEntity.getName() + ErrorMessages.NAME_ALREADY_EXISTENT);
         }
 
@@ -84,8 +84,8 @@ public class ArtistsService {
     }
 
     //delete entity (only mark artist as inactive)
-    public ArtistEntity deleteArtist(Integer id) {
-        ArtistEntity artistEntity = getArtistById(id);
+    public ArtistEntity deleteArtist(UUID uuid) {
+        ArtistEntity artistEntity = getArtistByUUID(uuid);
 
 //        artistEntity.setActive(false);
 //        artistsRepository.save(artistEntity);

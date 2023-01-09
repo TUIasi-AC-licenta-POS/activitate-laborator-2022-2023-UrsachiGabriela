@@ -3,8 +3,6 @@ package spotify.model.entities;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import spotify.utils.errorhandling.customexceptions.ConflictException;
-import spotify.utils.errorhandling.ErrorMessages;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -15,7 +13,7 @@ import java.util.Set;
 @Table(name = "artists")
 public class ArtistEntity {
     private @Id
-    @Column(name = "UUID") int id;
+    @Column(name = "UUID") String uuid;
 
     @NonNull
     @Column(unique = true)
@@ -23,7 +21,7 @@ public class ArtistEntity {
     @Nullable
     private boolean active;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "artists_songsAlbums",
             inverseJoinColumns = {@JoinColumn(name = "song_ID", referencedColumnName = "SID", nullable = false, updatable = false)},
@@ -40,18 +38,18 @@ public class ArtistEntity {
         this.name = name;
     }
 
-    public ArtistEntity(int id, @NonNull String name, boolean active) {
-        this.id = id;
+    public ArtistEntity(String uuid, @NonNull String name, boolean active) {
+        this.uuid = uuid;
         this.name = name;
         this.active = active;
     }
 
-    public int getId() {
-        return id;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getName() {
@@ -91,18 +89,18 @@ public class ArtistEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ArtistEntity artistEntity = (ArtistEntity) o;
-        return active == artistEntity.active && Objects.equals(id, artistEntity.id) && Objects.equals(name, artistEntity.name);
+        return active == artistEntity.active && Objects.equals(uuid, artistEntity.uuid) && Objects.equals(name, artistEntity.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, active);
+        return Objects.hash(uuid, name, active);
     }
 
     @Override
     public String toString() {
         return "Artists{" +
-                "UUID=" + id +
+                "UUID=" + uuid +
                 ", name='" + name + '\'' +
                 ", active=" + active +
                 '}';

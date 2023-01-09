@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import spotify.model.entities.ArtistEntity;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface ArtistsRepository extends JpaRepository<ArtistEntity, Integer> {
+public interface ArtistsRepository extends JpaRepository<ArtistEntity, String> {
 
     ArtistEntity findByName(String name);
 

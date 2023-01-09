@@ -38,6 +38,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Log4j2
 @RestController
@@ -109,11 +110,11 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
             })
     @GetMapping("/{uuid}")
-    public ResponseEntity<ArtistResponse> getArtistById(@PathVariable int uuid) {
+    public ResponseEntity<ArtistResponse> getArtistById(@PathVariable UUID uuid) {
         log.info("[{}] -> GET, getArtistById, id:{}", this.getClass().getSimpleName(),uuid);
 
         // query database
-        ArtistEntity artistEntity = artistsService.getArtistById(uuid);
+        ArtistEntity artistEntity = artistsService.getArtistByUUID(uuid);
 
         // map to dto
         ArtistResponse artistResponse = artistMapper.toArtistWithoutSongsDto(artistEntity);
@@ -134,7 +135,7 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PutMapping("/{uuid}")
-    public ResponseEntity<ArtistResponse> createOrReplaceArtist(@PathVariable int uuid,
+    public ResponseEntity<ArtistResponse> createOrReplaceArtist(@PathVariable UUID uuid,
                                                                 @Valid @RequestBody NewArtistRequest newArtist,
                                                                 @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
 
@@ -173,7 +174,7 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable int uuid,
+    public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable UUID uuid,
                                                        @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> DELETE, deleteArtist, uuid:{}", this.getClass().getSimpleName(),uuid);
 
@@ -201,12 +202,12 @@ public class ArtistsController {
 
             })
     @GetMapping("/{uuid}/songs")
-    public ResponseEntity<Set<SongResponse>> getAllSongsForGivenArtist(@PathVariable int uuid) {
+    public ResponseEntity<Set<SongResponse>> getAllSongsForGivenArtist(@PathVariable UUID uuid) {
         log.info("[{}] -> GET, getAllSongsForGivenArtist, artistId:{}", this.getClass().getSimpleName(),uuid);
 
 
         // query db
-        ArtistEntity artistEntity = artistsService.getArtistById(uuid);
+        ArtistEntity artistEntity = artistsService.getArtistByUUID(uuid);
 
         // map to dto
         Set<SongResponse> songResponseSet = songMapper.toSimpleSongDTOSet(artistEntity.getSongs());
@@ -232,7 +233,7 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))})
             })
     @PostMapping("/{uuid}/songs")
-    public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable int uuid,
+    public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable UUID uuid,
                                                               @Valid @RequestBody NewSongsForArtistRequest request,
                                                               @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> POST, assignSongsToArtist, uuid:{}, songs:{}", this.getClass().getSimpleName(),uuid,request);
@@ -241,7 +242,7 @@ public class ArtistsController {
         authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
 
         // query db for songs and artist
-        ArtistEntity artistEntity = artistsService.getArtistById(uuid);
+        ArtistEntity artistEntity = artistsService.getArtistByUUID(uuid);
         Set<SongEntity> songEntities = new HashSet<>();
         for (Integer songId : request.getSongsId()) {
             songEntities.add(songsService.getSongById(songId));

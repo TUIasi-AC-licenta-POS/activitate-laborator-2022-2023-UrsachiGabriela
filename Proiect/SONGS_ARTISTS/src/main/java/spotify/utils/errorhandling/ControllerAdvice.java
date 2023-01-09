@@ -44,9 +44,12 @@ public class ControllerAdvice {
         return new ResponseEntity<>(exceptionResponse, status);
     }
 
-    @ExceptionHandler({UnprocessableContentException.class})
-    public ResponseEntity<ExceptionResponse> handleUnprocessableContentException(UnprocessableContentException ex) {
+    @ExceptionHandler({UnprocessableContentException.class, IllegalArgumentException.class})
+    public ResponseEntity<ExceptionResponse> handleUnprocessableContentException(RuntimeException ex) {
         String details = ex.getMessage();
+        if(details.contains("Invalid UUID string") || details.contains("UUID string too large")){
+            details="Invalid UUID";
+        }
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
         return new ResponseEntity<>(exceptionResponse, status);

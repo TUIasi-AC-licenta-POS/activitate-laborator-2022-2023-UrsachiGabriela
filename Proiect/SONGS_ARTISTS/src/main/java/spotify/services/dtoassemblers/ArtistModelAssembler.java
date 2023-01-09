@@ -23,7 +23,7 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
         List<Link> links = new ArrayList<>();
 
         links.add(linkTo(methodOn(ArtistsController.class)
-                .getArtistById(artistResponse.getId()))
+                .getArtistById(artistResponse.getUuid()))
                 .withSelfRel());
 
         artistResponse.add(links);
@@ -38,7 +38,7 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
 
         links.add(linkTo(methodOn(ArtistsController.class).getAllArtists(null, null, null, null)).withRel("parent"));
         if (artistResponse.getHasSongs()) {
-            links.add(linkTo(methodOn(ArtistsController.class).getAllSongsForGivenArtist(artistResponse.getId())).withRel("songs"));
+            links.add(linkTo(methodOn(ArtistsController.class).getAllSongsForGivenArtist(artistResponse.getUuid())).withRel("songs"));
         }
         artistResponse.add(links);
 
@@ -50,8 +50,8 @@ public class ArtistModelAssembler extends RepresentationModelAssemblerSupport<Ar
 
         toModel(artistResponse);
 
-        links.add(linkTo(methodOn(ArtistsController.class).assignSongsToArtist(artistResponse.getId(), null, null)).withRel("assign songs").withType("POST"));
-        links.add(linkTo(methodOn(ArtistsController.class).deleteArtist(artistResponse.getId(), null)).withRel("delete artist").withType("DELETE"));
+        links.add(linkTo(methodOn(ArtistsController.class).assignSongsToArtist(artistResponse.getUuid(), null, null)).withRel("assign songs").withType("POST"));
+        links.add(linkTo(methodOn(ArtistsController.class).deleteArtist(artistResponse.getUuid(), null)).withRel("delete artist").withType("DELETE"));
 
         artistResponse.add(links);
 

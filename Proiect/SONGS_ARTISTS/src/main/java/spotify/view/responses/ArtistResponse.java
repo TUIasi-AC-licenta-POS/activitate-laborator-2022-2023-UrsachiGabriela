@@ -1,13 +1,12 @@
 package spotify.view.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
-import org.springframework.hateoas.server.core.Relation;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -16,7 +15,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ArtistResponse extends RepresentationModel<ArtistResponse> {
-    private Integer id;
+    private UUID uuid;
 
     @NotBlank(message = "Artist name should not be empty")
     private String name;
