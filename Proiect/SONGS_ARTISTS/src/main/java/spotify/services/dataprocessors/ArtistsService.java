@@ -87,8 +87,9 @@ public class ArtistsService {
     public ArtistEntity deleteArtist(Integer id) {
         ArtistEntity artistEntity = getArtistById(id);
 
-        artistEntity.setActive(false);
-        artistsRepository.save(artistEntity);
+//        artistEntity.setActive(false);
+//        artistsRepository.save(artistEntity);
+        artistsRepository.delete(artistEntity);
 
         return artistEntity;
     }
@@ -132,10 +133,10 @@ public class ArtistsService {
 
     public Set<ArtistEntity> getArtistForGivenSong(int songId) {
         List<ArtistEntity> artistEntities = artistsRepository.artistsForGivenSong(songId);
-        if(artistEntities.size() == 0){
-            // because a song cannot be created without artists
-            throw new EntityNotFoundException(ErrorMessages.SONG_NOT_FOUND + songId);
-        }
+//        if(artistEntities.size() == 0){
+//            // because a song cannot be created without artists
+//            throw new EntityNotFoundException(ErrorMessages.SONG_NOT_FOUND + songId);
+//        }
         return new HashSet<>(artistEntities);
     }
 

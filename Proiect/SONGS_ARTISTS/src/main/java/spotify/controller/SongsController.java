@@ -158,7 +158,7 @@ public class SongsController {
 
             })
     @PostMapping()
-    public ResponseEntity<SongResponse> addNewSong(@Valid @RequestBody NewSongRequest newSong,
+    public ResponseEntity<SongResponse> createSong(@Valid @RequestBody NewSongRequest newSong,
                                                    @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         log.info("[{}] -> POST, addNewSong, song:{}", this.getClass().getSimpleName(), newSong);
 

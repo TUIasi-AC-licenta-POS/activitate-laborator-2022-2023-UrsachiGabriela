@@ -25,6 +25,7 @@ import spotify.services.dataprocessors.SongsService;
 import spotify.services.dtoassemblers.ArtistModelAssembler;
 import spotify.services.dtoassemblers.SongModelAssembler;
 import spotify.services.mappers.ArtistMapper;
+import spotify.services.mappers.SongMapper;
 import spotify.utils.enums.UserRoles;
 import spotify.view.requests.NewArtistRequest;
 import spotify.view.requests.NewSongsForArtistRequest;
@@ -57,6 +58,8 @@ public class ArtistsController {
     @Autowired
     private SongModelAssembler songModelAssembler;
     private final ArtistMapper artistMapper = ArtistMapper.INSTANCE;
+    private final SongMapper songMapper = SongMapper.INSTANCE;
+
     @Autowired
     private PagedResourcesAssembler<ArtistResponse> artistDTOPagedResourcesAssembler;
 
@@ -131,9 +134,9 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PutMapping("/{uuid}")
-    public ResponseEntity<ArtistResponse> createNewArtist(@PathVariable int uuid,
-                                                          @Valid @RequestBody NewArtistRequest newArtist,
-                                                          @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+    public ResponseEntity<ArtistResponse> createOrReplaceArtist(@PathVariable int uuid,
+                                                                @Valid @RequestBody NewArtistRequest newArtist,
+                                                                @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
 
         log.info("[{}] -> PUT, createOrReplaceArtist, uuid:{}, artist:{}", this.getClass().getSimpleName(),uuid,newArtist);
 
@@ -198,22 +201,22 @@ public class ArtistsController {
 
             })
     @GetMapping("/{uuid}/songs")
-    public ResponseEntity<ArtistResponse> getAllSongsForGivenArtist(@PathVariable int uuid) {
+    public ResponseEntity<Set<SongResponse>> getAllSongsForGivenArtist(@PathVariable int uuid) {
         log.info("[{}] -> GET, getAllSongsForGivenArtist, artistId:{}", this.getClass().getSimpleName(),uuid);
+
 
         // query db
         ArtistEntity artistEntity = artistsService.getArtistById(uuid);
 
         // map to dto
-        ArtistResponse artistResponse = artistMapper.toArtistWithSongsDto(artistEntity);
+        Set<SongResponse> songResponseSet = songMapper.toSimpleSongDTOSet(artistEntity.getSongs());
 
         // add links
-        artistModelAssembler.toModel(artistResponse);
-        for (SongResponse songResponse : artistResponse.getSongs()) {
+        for(SongResponse songResponse:songResponseSet){
             songModelAssembler.toSimpleModel(songResponse);
         }
 
-        return ResponseEntity.ok().body(artistResponse);
+        return ResponseEntity.ok().body(songResponseSet);
     }
 
 

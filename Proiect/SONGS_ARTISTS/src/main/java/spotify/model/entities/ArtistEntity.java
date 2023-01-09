@@ -79,12 +79,12 @@ public class ArtistEntity {
         this.songs = songs;
     }
 
-    @PreRemove
-    public void checkSongAssociationBeforeRemoval() {
-        if (!this.songs.isEmpty()) {
-            throw new ConflictException(ErrorMessages.PARENT_REMOVAL);
-        }
-    }
+//    @PreRemove
+//    public void checkSongAssociationBeforeRemoval() {
+//        if (!this.songs.isEmpty()) {
+//            throw new ConflictException(ErrorMessages.PARENT_REMOVAL);
+//        }
+//    }
 
     @Override
     public boolean equals(Object o) {
