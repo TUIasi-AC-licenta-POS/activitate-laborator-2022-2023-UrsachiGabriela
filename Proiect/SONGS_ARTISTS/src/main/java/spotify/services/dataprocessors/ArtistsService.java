@@ -63,7 +63,7 @@ public class ArtistsService {
         ArtistEntity artistEntity = artistsRepository.findByName(name);
 
         if (artistEntity == null) {
-            throw new EntityNotFoundException(ErrorMessages.ARTIST_NOT_FOUND + name);
+            throw new ConflictException(ErrorMessages.ARTIST_NOT_FOUND + name);
         }
 
         return artistEntity;
@@ -83,12 +83,8 @@ public class ArtistsService {
         return artistsRepository.save(artistEntity);
     }
 
-    //delete entity (only mark artist as inactive)
     public ArtistEntity deleteArtist(UUID uuid) {
         ArtistEntity artistEntity = getArtistByUUID(uuid);
-
-//        artistEntity.setActive(false);
-//        artistsRepository.save(artistEntity);
         artistsRepository.delete(artistEntity);
 
         return artistEntity;
@@ -130,13 +126,8 @@ public class ArtistsService {
             artistsRepository.save(a);
         }
     }
-
     public Set<ArtistEntity> getArtistForGivenSong(int songId) {
         List<ArtistEntity> artistEntities = artistsRepository.artistsForGivenSong(songId);
-//        if(artistEntities.size() == 0){
-//            // because a song cannot be created without artists
-//            throw new EntityNotFoundException(ErrorMessages.SONG_NOT_FOUND + songId);
-//        }
         return new HashSet<>(artistEntities);
     }
 

@@ -28,6 +28,7 @@ import spotify.services.mappers.ArtistMapper;
 import spotify.services.mappers.SongMapper;
 import spotify.utils.enums.UserRoles;
 import spotify.view.requests.NewSongRequest;
+import spotify.view.requests.SongForUpdateRequest;
 import spotify.view.responses.ArtistResponse;
 import spotify.view.responses.ExceptionResponse;
 import spotify.view.responses.SongResponse;
@@ -40,8 +41,7 @@ import java.util.Set;
 
 //TODO
 // logs
-// uuid with type String
-// update functionality
+// update song name, genre, year, type -> PATCH
 // add 401 and 403 status codes to openAPI description
 
 @Log4j2
@@ -152,8 +152,7 @@ public class SongsController {
             {
                     @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Mentioned artists not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-                    @ApiResponse(responseCode = "409", description = "Mentioned album doesn't exist yet", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
+                    @ApiResponse(responseCode = "409", description = "Mentioned album or artists don't exist yet", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
 
             })
@@ -166,7 +165,7 @@ public class SongsController {
         authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // query db for album and artists (not continue if either album or artists do not exist)
-        SongEntity album = newSong.getParentId() != null ? songsService.getAlbumById(newSong.getParentId()) : null;
+        SongEntity album = newSong.getParentId() != null ? songsService.getAlbumOfSong(newSong.getParentId()) : null;
         Set<ArtistEntity> artistEntities = artistsService.getArtistsByNameIfActive(newSong.getArtists()); // if artists don't exist, or they are inactive, the song will not be created
 
         // map dto to entity
@@ -183,6 +182,36 @@ public class SongsController {
         songModelAssembler.toComplexModel(songResponse);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(songResponse);
+    }
+
+    @Operation(summary = "Update an existing song")
+    @ApiResponses(value =
+            {
+                    @ApiResponse(responseCode = "204", description = "Successfully updated", content = @Content),
+                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "404", description = "Song not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+            })
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateSong(@PathVariable int id,
+                                                                @Valid @RequestBody SongForUpdateRequest songForUpdateRequest,
+                                                                @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        log.info("[{}] -> PATCH, updateSong, id:{}, song:{}", this.getClass().getSimpleName(),id, songForUpdateRequest);
+
+        // authorize
+        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
+
+        // query db for album and artists (not continue if either album or artists do not exist)
+        SongEntity oldSongEntity = songsService.getSongById(id);
+
+        // map dto to new entity
+        SongEntity updatedEntity = songMapper.toSongEntity(songForUpdateRequest);
+
+        // update song
+        songsService.updateSong(oldSongEntity,updatedEntity);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Delete song resource identified by id")

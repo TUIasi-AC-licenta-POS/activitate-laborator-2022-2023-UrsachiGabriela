@@ -10,6 +10,7 @@ import spotify.utils.enums.MusicGenre;
 import spotify.utils.enums.MusicType;
 import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.view.requests.NewSongRequest;
+import spotify.view.requests.SongForUpdateRequest;
 import spotify.view.responses.SongResponse;
 
 import java.util.Set;
@@ -31,6 +32,8 @@ public interface SongMapper {
                 //.genre(songEntity.getGenre())
                 .build();
     }
+
+    SongEntity toSongEntity(SongForUpdateRequest songForUpdateRequest);
 
     @Mapping(source = "newSongRequest.parentId", target = "parent.id")
     default SongEntity toSongEntity(NewSongRequest newSongRequest, SongEntity album) {

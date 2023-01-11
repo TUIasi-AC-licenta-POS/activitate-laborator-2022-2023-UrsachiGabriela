@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import spotify.model.entities.ArtistEntity;
+import spotify.model.repos.ArtistsRepository;
 import spotify.utils.errorhandling.customexceptions.ConflictException;
 import spotify.utils.errorhandling.customexceptions.EntityNotFoundException;
 import spotify.model.entities.SongEntity;
@@ -17,14 +19,18 @@ import spotify.utils.enums.MusicGenre;
 import spotify.utils.enums.MusicType;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class SongsService {
 
     @Autowired
     private SongsRepository songsRepository;
+    @Autowired
+    private ArtistsRepository artistsRepository;
     @Autowired
     private CreateValidator createValidator;
     @Autowired
@@ -78,13 +84,23 @@ public class SongsService {
         return songEntity.get();
     }
 
-    public SongEntity getAlbumById(int albumId) {
-        Optional<SongEntity> songEntity = songsRepository.findById(albumId);
-
-        if (!songEntity.isPresent()) {
+    public SongEntity getAlbumOfSong(int albumId) {
+        try{
+            return getSongById(albumId);
+        }
+        catch (EntityNotFoundException ex){
             throw new ConflictException(ErrorMessages.INEXISTENT_ALBUM + albumId);
         }
-        return songEntity.get();
+    }
+
+    public void updateSong(SongEntity oldEntity,SongEntity newEntity){
+        newEntity.setId(oldEntity.getId());
+        newEntity.setType(oldEntity.getType());
+        newEntity.setParent(oldEntity.getParent());
+        newEntity.setSongEntities(oldEntity.getSongEntities());
+
+        createValidator.validate(newEntity);
+        songsRepository.save(newEntity);
     }
 
     public SongEntity createNewSong(SongEntity songEntity) {
