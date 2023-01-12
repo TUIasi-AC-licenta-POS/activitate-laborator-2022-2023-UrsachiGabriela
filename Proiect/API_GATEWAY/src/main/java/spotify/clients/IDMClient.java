@@ -8,8 +8,10 @@ import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 import spotify.utils.Urls;
 import spotify.utils.enums.UserRoles;
 import spotify.utils.errorhandling.InvalidEnumException;
+import spotify.view.requests.CreateUserRequest;
 import spotify.view.requests.LoginRequest;
 import spotify.view.requests.RegisterRequest;
+import spotify.view.responses.AuthResponse;
 import spotify.view.responses.ExceptionResponse;
 import spotify.view.responses.LoginResponse;
 
@@ -20,7 +22,7 @@ public class IDMClient  extends WebServiceGatewaySupport {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
 
-    public AuthorizeResp authorizeUser(String jwsToken){
+    public AuthResponse authorizeUser(String jwsToken){
         Authorize authorize = new Authorize();
         authorize.setAccessToken(OBJECT_FACTORY.createAuthorizeAccessToken(jwsToken));
 
@@ -32,20 +34,34 @@ public class IDMClient  extends WebServiceGatewaySupport {
         JAXBElement<AuthorizeResponse> responseJAXBElement = (JAXBElement<AuthorizeResponse>) getWebServiceTemplate().marshalSendAndReceive(Urls.IDM_REQUEST_URL,request);
         AuthorizeResponse response = responseJAXBElement.getValue();
 
-        return response.getAuthorizeResult().getValue();
+        return new AuthResponse(response.getAuthorizeResult().getValue().getSub().getValue().intValue(),
+                response.getAuthorizeResult().getValue().getRoles().getValue());
+    }
+
+    public String createUser(String token, CreateUserRequest createUserRequest){
+        CreateUser createUser = new CreateUser();
+        createUser.setAccessToken(OBJECT_FACTORY.createCreateUserAccessToken(token));
+        createUser.setUname(OBJECT_FACTORY.createCreateUserUname(createUserRequest.getUsername()));
+        createUser.setUpass(OBJECT_FACTORY.createCreateUserUpass(createUserRequest.getPassword()));
+
+        try{
+            createUser.setUrole(OBJECT_FACTORY.createCreateUserUrole(UserRoles.valueOf(createUserRequest.getRole()).name()));
+        }
+        catch (Exception e){
+            throw new InvalidEnumException("Invalid role");
+        }
+        JAXBElement<CreateUser> request = OBJECT_FACTORY.createCreateUser(createUser);
+        JAXBElement<CreateUserResponse> responseJAXBElement = (JAXBElement<CreateUserResponse>) getWebServiceTemplate().marshalSendAndReceive(Urls.IDM_REQUEST_URL,request);
+
+        CreateUserResponse response = responseJAXBElement.getValue();
+
+        return response.getCreateUserResult().getValue();
     }
 
     public void register(RegisterRequest registerRequest){
         RegisterUser registerUser = new RegisterUser();
         registerUser.setUname(OBJECT_FACTORY.createRegisterUserUname(registerRequest.getName()));
         registerUser.setUpass(OBJECT_FACTORY.createRegisterUserUpass(registerRequest.getPassword()));
-
-        try{
-            registerUser.setUrole(OBJECT_FACTORY.createRegisterUserUrole(UserRoles.valueOf(registerRequest.getRole()).name()));
-        }
-        catch (Exception e){
-            throw new InvalidEnumException("Invalid role");
-        }
 
         JAXBElement<RegisterUser> request = OBJECT_FACTORY.createRegisterUser(registerUser);
         JAXBElement<RegisterUserResponse> responseJAXBElement = (JAXBElement<RegisterUserResponse>) getWebServiceTemplate().marshalSendAndReceive(Urls.IDM_REQUEST_URL,request);
@@ -68,9 +84,9 @@ public class IDMClient  extends WebServiceGatewaySupport {
         return new LoginResponse(response.getLoginResult().getValue());
     }
 
-    public boolean logout(LoginResponse logoutRequest){
+    public boolean logout(String token){
         Logout logout = new Logout();
-        logout.setAccessToken(OBJECT_FACTORY.createLogoutAccessToken(logoutRequest.getJwsToken()));
+        logout.setAccessToken(OBJECT_FACTORY.createLogoutAccessToken(token));
 
         JAXBElement<Logout> request = OBJECT_FACTORY.createLogout(logout);
 

@@ -41,12 +41,11 @@ import java.util.Set;
 
 //TODO
 // logs
-// update song name, genre, year, type -> PATCH
-// add 401 and 403 status codes to openAPI description
 
 @Log4j2
 @RestController
 @RequestMapping(value = "/api/songcollection/songs", produces = MediaType.APPLICATION_JSON_VALUE)
+@CrossOrigin(origins = "http://localhost:3000/")
 @Validated
 public class SongsController {
 
@@ -74,7 +73,7 @@ public class SongsController {
             {
                     @ApiResponse(responseCode = "200", description = "Found searched songs", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = SongResponse.class)))}),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "422", description = "Invalid values for query params", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
 
             })
     @GetMapping()
@@ -152,6 +151,8 @@ public class SongsController {
             {
                     @ApiResponse(responseCode = "201", description = "Successfully added  new song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Malformed request syntax", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "409", description = "Mentioned album or artists don't exist yet", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "422", description = "Semantically erroneous request body fields", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
 
@@ -189,8 +190,10 @@ public class SongsController {
             {
                     @ApiResponse(responseCode = "204", description = "Successfully updated", content = @Content),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Song not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "422", description = "Invalid music genre", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateSong(@PathVariable int id,
@@ -219,6 +222,8 @@ public class SongsController {
             {
                     @ApiResponse(responseCode = "200", description = "Successfully deleted song resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SongResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Searched song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "409", description = "Conflict: cannot remove album without removing all its songs", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })

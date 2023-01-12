@@ -27,6 +27,10 @@ public class ControllerAdvice {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        if (Objects.equals(ex.getMessage(), "Forbidden")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         if(Objects.equals(ex.getMessage(), "Invalid role")){
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ExceptionResponse(HttpStatus.UNPROCESSABLE_ENTITY.name(), HttpStatus.UNPROCESSABLE_ENTITY.value(), "Invalid role"));
         }
@@ -36,7 +40,7 @@ public class ControllerAdvice {
         }
 
         if(Objects.equals(ex.getMessage(), "This username already exists")){
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ExceptionResponse(HttpStatus.UNPROCESSABLE_ENTITY.name(), HttpStatus.UNPROCESSABLE_ENTITY.value(), "Name is invalid or already taken"));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionResponse(HttpStatus.CONFLICT.name(), HttpStatus.CONFLICT.value(), "Name is already taken"));
         }
 
         return null;

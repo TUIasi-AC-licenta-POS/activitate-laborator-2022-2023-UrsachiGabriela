@@ -34,6 +34,7 @@ import java.util.Set;
 
 //TODO
 // logs
+// update playlist name -> PATCH
 
 
 @RestController

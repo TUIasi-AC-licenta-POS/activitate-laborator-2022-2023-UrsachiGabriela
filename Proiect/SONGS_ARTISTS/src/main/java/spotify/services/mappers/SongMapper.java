@@ -33,7 +33,23 @@ public interface SongMapper {
                 .build();
     }
 
-    SongEntity toSongEntity(SongForUpdateRequest songForUpdateRequest);
+    default SongEntity toSongEntity(SongForUpdateRequest songForUpdateRequest){
+        SongEntity songEntity = new SongEntity();
+
+        songEntity.setName(songForUpdateRequest.getName());
+        try{
+            songEntity.setGenre(MusicGenre.valueOf(songForUpdateRequest.getGenre()));
+        }
+        catch (Exception e){
+            throw new UnprocessableContentException("Invalid genre");
+        }
+
+        if (songForUpdateRequest.getYear() != null) {
+            songEntity.setYear(songForUpdateRequest.getYear());
+        }
+
+        return songEntity;
+    }
 
     @Mapping(source = "newSongRequest.parentId", target = "parent.id")
     default SongEntity toSongEntity(NewSongRequest newSongRequest, SongEntity album) {

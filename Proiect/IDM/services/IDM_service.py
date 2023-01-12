@@ -1,7 +1,6 @@
 import collections
 import json
 
-
 import spyne
 from munch import DefaultMunch
 from spyne import Application, rpc, ServiceBase, String, Boolean, Array, Iterable
@@ -22,15 +21,9 @@ from spyne.server.null import NullServer
 class IDMService(ServiceBase):
 
     # at new account creation, the user can select his role from CLIENT or ARTIST
-    @rpc(String, String, String, _returns=String)
-    def register_user(ctx, uname, upass, urole):
-        role = get_role_by_name(urole)
-
-        if role is None:
-            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
-
-        if role.rname not in [Roles.CLIENT.name, Roles.ARTIST.name]:
-            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
+    @rpc(String, String, _returns=String)
+    def register_user(ctx, uname, upass):
+        role = get_role_by_name(Roles.CLIENT.name)
 
         if not is_valid(upass):
             raise spyne.Fault(faultcode='Client', faultstring="Too weak password")
@@ -47,11 +40,21 @@ class IDMService(ServiceBase):
         raise spyne.Fault(faultcode='Server', faultstring="Could not save this user")
 
     # admin can create a new user with CONTENT_MANAGER role
-    @rpc(String, String, String, _returns=String)
-    def create_user(ctx, access_token, uname, upass):
+    @rpc(String, String, String, String, _returns=String)
+    def create_user(ctx, access_token, uname, upass, urole):
         auth_response = auth(access_token)
 
-        if Roles.APP_ADMIN.name not in auth_response.roles:
+        role = get_role_by_name(urole)
+        if role is None:
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
+
+        if role.rname not in [Roles.CLIENT.name, Roles.ARTIST.name, Roles.CONTENT_MANAGER.name]:
+            raise spyne.Fault(faultcode='Client', faultstring="Invalid role")
+
+        if (role.rname == Roles.CONTENT_MANAGER.name) and (Roles.APP_ADMIN.name not in auth_response.roles):
+            raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
+
+        if (role.rname == Roles.ARTIST.name) and ((Roles.APP_ADMIN.name not in auth_response.roles) and (Roles.CONTENT_MANAGER.name not in auth_response.roles) ):
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
 
         if not is_valid(upass):
@@ -62,7 +65,7 @@ class IDMService(ServiceBase):
         create = create_user(uname, encoded_password, role)
 
         if create is True:
-            return "Successfully created"
+            return get_user_by_name(uname).uid + ": "+uname
 
         if "users_UK" in create:
             raise spyne.Fault(faultcode='Client', faultstring="This username already exists")
@@ -172,7 +175,6 @@ class IDMService(ServiceBase):
         if (user.uid != auth_response.sub) and (Roles.APP_ADMIN.name not in auth_response.roles):
             raise spyne.Fault(faultcode='Client', faultstring="Forbidden")
 
-
         roles = []
         for role in user.roles:
             dto = RoleDTO(role.rid, role.rname)
@@ -215,7 +217,7 @@ class IDMService(ServiceBase):
 
         return result
 
-    @rpc( String, String, _returns=String)
+    @rpc(String, String, _returns=String)
     def login(ctx, uname, upass):
         user = get_user_by_name(uname)
 
@@ -257,6 +259,7 @@ def auth(access_token):
         raise spyne.Fault(faultcode='Client', faultstring="Invalid token")
 
     return AuthorizeResp(obj.sub, obj.roles)
+
 
 def verify_roles(uid, uroles):
     user = get_user_by_id(uid)

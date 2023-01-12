@@ -69,7 +69,7 @@ public class ArtistsController {
             {
                     @ApiResponse(responseCode = "200", description = "Found searched artists", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ArtistResponse.class)))}),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for query params", content = @Content),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "422", description = "Invalid values for query params", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @GetMapping()
     public ResponseEntity<PagedModel<ArtistResponse>> getAllArtists(
@@ -131,8 +131,10 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "201", description = "Successfully created a new artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "204", description = "Successfully replaced an existing resource with given uuid", content = @Content),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "409", description = "Conflict: unique name constraint unsatisfied", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
+                    @ApiResponse(responseCode = "422", description = "Invalid values for request fields", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
             })
     @PutMapping("/{uuid}")
     public ResponseEntity<ArtistResponse> createOrReplaceArtist(@PathVariable UUID uuid,
@@ -171,6 +173,8 @@ public class ArtistsController {
             {
                     @ApiResponse(responseCode = "200", description = "Successfully deleted artist resource", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
             })
     @DeleteMapping("/{uuid}")
@@ -199,7 +203,6 @@ public class ArtistsController {
                     @ApiResponse(responseCode = "200", description = "Found artist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "404", description = "Searched artist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "400", description = "Invalid syntax for path variables", content = @Content)
-
             })
     @GetMapping("/{uuid}/songs")
     public ResponseEntity<Set<SongResponse>> getAllSongsForGivenArtist(@PathVariable UUID uuid) {
@@ -228,9 +231,11 @@ public class ArtistsController {
             {
                     @ApiResponse(responseCode = "200", description = "Successfully updated join table", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ArtistResponse.class))}),
                     @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
+                    @ApiResponse(responseCode = "401", description = "Invalid token", content = @Content),
+                    @ApiResponse(responseCode = "403", description = "Invalid role", content = @Content),
                     @ApiResponse(responseCode = "404", description = "Searched artist/song not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
                     @ApiResponse(responseCode = "409", description = "The artist is not active", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))})
+                    @ApiResponse(responseCode = "422", description = "Invalid values for request fields", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))})
             })
     @PostMapping("/{uuid}/songs")
     public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable UUID uuid,
