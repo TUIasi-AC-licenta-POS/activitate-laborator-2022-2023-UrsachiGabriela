@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.ws.soap.client.SoapFaultClientException;
+import spotify.utils.Urls;
 
 import java.util.Objects;
 
@@ -27,10 +28,10 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(SoapFaultClientException.class)
-    public ResponseEntity<ExceptionResponse> handleSOAPClientErrorException(SoapFaultClientException ex) {
+    public ResponseEntity<Object> handleSOAPClientErrorException(SoapFaultClientException ex) {
         log.info("[{}] -> handle {}, details:{}", this.getClass().getSimpleName(), SoapFaultClientException.class.getSimpleName() ,ex.getMessage());
         if (Objects.equals(ex.getMessage(), "Invalid token")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return new ResponseEntity<>(Urls.LOGIN_REQUEST_URL,HttpStatus.UNAUTHORIZED);
         }
 
         if (Objects.equals(ex.getMessage(), "Forbidden")) {
@@ -54,6 +55,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(InvalidEnumException.class)
     public ResponseEntity<ExceptionResponse> handleInvalidEnumException(InvalidEnumException ex) {
+        log.info("[{}] -> handle {}, details:{}", this.getClass().getSimpleName(), InvalidEnumException.class.getSimpleName() ,ex.getMessage());
         String details = ex.getMessage();
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);
@@ -63,6 +65,8 @@ public class ControllerAdvice {
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        log.info("[{}] -> handle {}, details:{}", this.getClass().getSimpleName(), MethodArgumentNotValidException.class.getSimpleName() ,ex.getMessage());
+
         String details = Objects.requireNonNull(ex.getBindingResult().getFieldError()).getDefaultMessage();
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         ExceptionResponse exceptionResponse = new ExceptionResponse(status.name(), status.value(), details);

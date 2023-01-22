@@ -16,7 +16,7 @@ import javax.validation.constraints.Pattern;
 public class RegisterRequest {
 
     @NotBlank(message = "Username should not be empty")
-    @Pattern(regexp = "^[a-zA-Z\\s]+", message = "Invalid name format")
+    @Pattern(regexp = "^[- a-zA-Z\\s]+", message = "Invalid name format")
     private String name;
     private String password;;
 }
