@@ -43,6 +43,7 @@ import java.util.UUID;
 @Log4j2
 @RestController
 @RequestMapping(value = "/api/songcollection/artists", produces = MediaType.APPLICATION_JSON_VALUE)
+@CrossOrigin(origins = "http://localhost:3000/")
 @Validated
 public class ArtistsController {
 
@@ -81,7 +82,7 @@ public class ArtistsController {
             Integer size,
 
             @RequestParam(required = false)
-            @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
+            @Pattern(regexp = "^[a-zA-Z\\s]+", message = "Invalid name format")
             String name,
 
             @Pattern(regexp = "exact", message = "Invalid match")

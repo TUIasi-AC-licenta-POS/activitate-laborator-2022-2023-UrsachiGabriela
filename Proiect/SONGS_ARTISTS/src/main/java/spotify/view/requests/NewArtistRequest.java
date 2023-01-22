@@ -16,7 +16,7 @@ import javax.validation.constraints.Pattern;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class NewArtistRequest {
     @NotBlank(message = "Artist name should not be empty")
-    @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
+    @Pattern(regexp = "^[a-zA-Z\\s]+", message = "Invalid name format")
     private String name;
 
     @Pattern(regexp = "true|false", message = "active field should be either true or false")

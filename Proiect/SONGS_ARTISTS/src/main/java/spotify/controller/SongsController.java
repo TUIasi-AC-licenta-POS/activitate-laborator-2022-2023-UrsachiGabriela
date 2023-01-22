@@ -81,7 +81,7 @@ public class SongsController {
             @RequestParam(required = false)
             @Min(0) Integer page,
 
-            @RequestParam(defaultValue = "1", required = false)
+            @RequestParam(defaultValue = "9", required = false)
             @Min(value = 1, message = "Page size should not be less than one ")
             Integer size,
 
