@@ -39,9 +39,6 @@ import javax.validation.constraints.Pattern;
 import java.util.Set;
 
 
-//TODO
-// logs
-
 @Log4j2
 @RestController
 @RequestMapping(value = "/api/songcollection/songs", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -65,9 +62,6 @@ public class SongsController {
     private PagedResourcesAssembler<SongResponse> songDTOPagedResourcesAssembler;
 
 
-    /**
-     * @return O lista cu toate piesele din colectie (info complete) -> 200 Ok
-     */
     @Operation(summary = "Get all songs")
     @ApiResponses(value =
             {
@@ -114,11 +108,6 @@ public class SongsController {
         return ResponseEntity.ok().body(songModels);
     }
 
-    /**
-     * @param id id-ul piesei cautate
-     * @return daca exista => piesa cautata + 200 ok
-     * daca nu exista => 404 Not found
-     */
     @Operation(summary = "Get song by its identifier")
     @ApiResponses(value =
             {
@@ -197,13 +186,13 @@ public class SongsController {
             })
     @PatchMapping("/{id}")
     public ResponseEntity<Void> updateSong(@PathVariable int id,
-                                                                @Valid @RequestBody SongForUpdateRequest songForUpdateRequest,
-                                                                @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+                                           @Valid @RequestBody SongForUpdateRequest songForUpdateRequest,
+                                           @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
 
-        log.info("[{}] -> PATCH, updateSong, id:{}, song:{}", this.getClass().getSimpleName(),id, songForUpdateRequest);
+        log.info("[{}] -> PATCH, updateSong, id:{}, song:{}", this.getClass().getSimpleName(), id, songForUpdateRequest);
 
         // authorize
-        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
+        authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // query db for album and artists (not continue if either album or artists do not exist)
         SongEntity oldSongEntity = songsService.getSongById(id);
@@ -212,7 +201,7 @@ public class SongsController {
         SongEntity updatedEntity = songMapper.toSongEntity(songForUpdateRequest);
 
         // update song
-        songsService.updateSong(oldSongEntity,updatedEntity);
+        songsService.updateSong(oldSongEntity, updatedEntity);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -257,7 +246,7 @@ public class SongsController {
             })
     @GetMapping("/{id}/artists")
     public ResponseEntity<Set<ArtistResponse>> getAllArtistsForGivenSong(@PathVariable int id) {
-        log.info("[{}] -> GET, getAllArtistsForGivenSong, songId:{}", this.getClass().getSimpleName(),id);
+        log.info("[{}] -> GET, getAllArtistsForGivenSong, songId:{}", this.getClass().getSimpleName(), id);
 
         // query db
         Set<ArtistEntity> artistEntities = artistsService.getArtistForGivenSong(id);

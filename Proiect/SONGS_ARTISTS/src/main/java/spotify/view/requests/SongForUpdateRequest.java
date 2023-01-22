@@ -11,7 +11,7 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode(callSuper = false)
 public class SongForUpdateRequest {
     @NotBlank(message = "Song name should not be empty")
-    @Pattern(regexp = "^[a-zA-Z\\s]+", message = "Invalid song name format")
+    @Pattern(regexp = "^[- 'a-zA-Z\\s]+", message = "Invalid song name format")
     private String name;
 
     @NotNull(message = "Music genre should not be null")

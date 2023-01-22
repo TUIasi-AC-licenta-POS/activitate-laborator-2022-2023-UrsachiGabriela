@@ -1,14 +1,18 @@
 package spotify.services.validators;
 
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import spotify.utils.errorhandling.customexceptions.UnprocessableContentException;
 import spotify.utils.errorhandling.ErrorMessages;
 import spotify.utils.enums.MusicGenre;
 
+@Log4j2
 @Component
 public class FilterValidator implements Validator {
     @Override
     public void validate(Object target, String... dependency) {
+        log.info("[{}] -> validate query params values ", this.getClass().getSimpleName());
         switch (dependency[0]) {
             case "title":
                 validateTitle(target);

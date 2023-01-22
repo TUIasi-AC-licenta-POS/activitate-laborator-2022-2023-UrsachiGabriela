@@ -89,7 +89,7 @@ public class ArtistsController {
             @RequestParam(required = false)
             String match
     ) {
-        log.info("[{}] -> GET, getAllArtists: page:{}, size:{}, name:{}, match:{}", this.getClass().getSimpleName(),page,size,name,match);
+        log.info("[{}] -> GET, getAllArtists: page:{}, size:{}, name:{}, match:{}", this.getClass().getSimpleName(), page, size, name, match);
 
         // query db
         Page<ArtistEntity> artistEntities = artistsService.getPageableArtists(page, size, name, match);
@@ -112,7 +112,7 @@ public class ArtistsController {
             })
     @GetMapping("/{uuid}")
     public ResponseEntity<ArtistResponse> getArtistById(@PathVariable UUID uuid) {
-        log.info("[{}] -> GET, getArtistById, id:{}", this.getClass().getSimpleName(),uuid);
+        log.info("[{}] -> GET, getArtistById, id:{}", this.getClass().getSimpleName(), uuid);
 
         // query database
         ArtistEntity artistEntity = artistsService.getArtistByUUID(uuid);
@@ -142,16 +142,16 @@ public class ArtistsController {
                                                                 @Valid @RequestBody NewArtistRequest newArtist,
                                                                 @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
 
-        log.info("[{}] -> PUT, createOrReplaceArtist, uuid:{}, artist:{}", this.getClass().getSimpleName(),uuid,newArtist);
+        log.info("[{}] -> PUT, createOrReplaceArtist, uuid:{}, artist:{}", this.getClass().getSimpleName(), uuid, newArtist);
 
         // authorize
-        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
+        authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // query db to decide which of create or replace operation is needed
         boolean isAlreadyExistent = artistsService.itExistsArtist(uuid);
 
         // map dto to entity
-        ArtistEntity artistEntity = artistMapper.toArtistEntity(newArtist,uuid);
+        ArtistEntity artistEntity = artistMapper.toArtistEntity(newArtist, uuid);
 
         // update db
         ArtistEntity savedEntity = artistsService.createOrReplaceArtist(artistEntity);
@@ -181,10 +181,10 @@ public class ArtistsController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<ArtistResponse> deleteArtist(@PathVariable UUID uuid,
                                                        @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
-        log.info("[{}] -> DELETE, deleteArtist, uuid:{}", this.getClass().getSimpleName(),uuid);
+        log.info("[{}] -> DELETE, deleteArtist, uuid:{}", this.getClass().getSimpleName(), uuid);
 
         // authorize
-        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
+        authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // delete artist
         ArtistEntity artistEntity = artistsService.deleteArtist(uuid);
@@ -207,7 +207,7 @@ public class ArtistsController {
             })
     @GetMapping("/{uuid}/songs")
     public ResponseEntity<Set<SongResponse>> getAllSongsForGivenArtist(@PathVariable UUID uuid) {
-        log.info("[{}] -> GET, getAllSongsForGivenArtist, artistId:{}", this.getClass().getSimpleName(),uuid);
+        log.info("[{}] -> GET, getAllSongsForGivenArtist, artistId:{}", this.getClass().getSimpleName(), uuid);
 
 
         // query db
@@ -217,7 +217,7 @@ public class ArtistsController {
         Set<SongResponse> songResponseSet = songMapper.toSimpleSongDTOSet(artistEntity.getSongs());
 
         // add links
-        for(SongResponse songResponse:songResponseSet){
+        for (SongResponse songResponse : songResponseSet) {
             songModelAssembler.toSimpleModel(songResponse);
         }
 
@@ -242,10 +242,10 @@ public class ArtistsController {
     public ResponseEntity<ArtistResponse> assignSongsToArtist(@PathVariable UUID uuid,
                                                               @Valid @RequestBody NewSongsForArtistRequest request,
                                                               @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
-        log.info("[{}] -> POST, assignSongsToArtist, uuid:{}, songs:{}", this.getClass().getSimpleName(),uuid,request);
+        log.info("[{}] -> POST, assignSongsToArtist, uuid:{}, songs:{}", this.getClass().getSimpleName(), uuid, request);
 
         // authorize
-        authService.authorize(authorizationHeader,UserRoles.CONTENT_MANAGER);
+        authService.authorize(authorizationHeader, UserRoles.CONTENT_MANAGER);
 
         // query db for songs and artist
         ArtistEntity artistEntity = artistsService.getArtistByUUID(uuid);
@@ -262,7 +262,7 @@ public class ArtistsController {
 
         // add links
         artistModelAssembler.toComplexModel(artistResponse);
-        for(SongResponse songResponse:artistResponse.getSongs()){
+        for (SongResponse songResponse : artistResponse.getSongs()) {
             songModelAssembler.toSimpleModel(songResponse);
         }
 

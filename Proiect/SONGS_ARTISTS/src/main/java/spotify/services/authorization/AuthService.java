@@ -35,6 +35,8 @@ public class AuthService {
     }
 
     private void verifyHeaderExistence(String authHeader) {
+        log.info("[{}] -> verify header existence ", this.getClass().getSimpleName());
+
         // if header des not exist
         if (authHeader == null) {
             throw new UnauthorizedException();
@@ -48,6 +50,8 @@ public class AuthService {
     }
 
     private void verifyRoles(Pair<Integer, List<UserRoles>> userRoles, UserRoles... validRoles) {
+        log.info("[{}] -> verify roles", this.getClass().getSimpleName());
+
         boolean itExistsAtLeastOneValidRole = false;
 
         for (UserRoles validRole : validRoles) {
@@ -63,6 +67,8 @@ public class AuthService {
     }
 
     private Pair<Integer, List<UserRoles>> decodeSOAPResponse(AuthorizeResp authorizeResp) {
+        log.info("[{}] -> decode SOAP response for authorize", this.getClass().getSimpleName());
+
         Integer userId = authorizeResp.getSub().getValue().intValue();
         List<UserRoles> userRoles = authorizeResp.getRoles().getValue().getString()
                 .stream()
