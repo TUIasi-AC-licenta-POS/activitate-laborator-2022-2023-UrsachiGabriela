@@ -35,7 +35,7 @@ public class IDMClient  extends WebServiceGatewaySupport {
         AuthorizeResponse response = responseJAXBElement.getValue();
 
         return new AuthResponse(response.getAuthorizeResult().getValue().getSub().getValue().intValue(),
-                response.getAuthorizeResult().getValue().getRoles().getValue());
+                response.getAuthorizeResult().getValue().getRoles().getValue().getString());
     }
 
     public String createUser(String token, CreateUserRequest createUserRequest){

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.spotify.idmclient.wsdl.StringArray;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,5 +15,5 @@ import lombok.*;
 public class AuthResponse {
     Integer sub;
 
-    StringArray roles;
+    List<String> roles;
 }
