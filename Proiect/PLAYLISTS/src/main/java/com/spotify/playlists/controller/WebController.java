@@ -33,9 +33,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import java.util.Set;
 
-//TODO
-// logs
-// update playlist name -> PATCH
 
 
 @Log4j2

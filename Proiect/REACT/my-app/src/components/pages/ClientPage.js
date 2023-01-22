@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Toolbar } from "primereact/toolbar";
 import { Dialog } from "primereact/dialog";
 import { Navigate } from "react-router-dom";
+import dataService from "../../services/data.service";
 import axios from "axios";
 
 
@@ -25,6 +26,7 @@ class ClientPage extends React.Component{
         this.addPlaylist=this.addPlaylist.bind(this);
         this.confirmDeleteSelected = this.confirmDeleteSelected.bind(this);
         this.hideDeleteItemDialog = this.hideDeleteItemDialog.bind(this);
+        this.addToFavs=this.addToFavs.bind(this);
 
         this.state = {
            
@@ -40,10 +42,12 @@ class ClientPage extends React.Component{
             redirectBack:null,
 
             // submitted: false,
-            itemDialog:false
+            itemDialog:false,
+            favPlaylistId:null
         };
 
     }
+
 
     onChangePage(page){
         this.setState({
@@ -123,6 +127,40 @@ class ClientPage extends React.Component{
         });
     }
 
+    addToFavs() {
+        const {selectedItem} = this.state;
+        const songId = selectedItem.id;
+        const headers = { 
+            'Authorization': `Bearer ${this.props.token}`
+        };
+
+        dataService.getMyPlaylists(this.props.token)
+        .then((response)=>{
+            // console.log(response.data)
+            if(response.data){
+                const favPlaylistId = response.data._embedded.playlistResponses.find(function (playlist) {
+                    return playlist.name == 'Favorites';
+                }).id
+               
+                const addToPlaylistUrl = "http://localhost:8081/api/playlistscollection/playlists/"+favPlaylistId+"/songs";
+
+                axios.patch(addToPlaylistUrl,{songId},{headers})
+                .then(() => {
+                    this.toast.show({ severity: 'success', summary: 'Successful', detail: 'Added to favorites', life: 1000 });
+                })
+                .catch((error)=>{
+                    this.handleError(error)
+                })
+            }
+        })
+        .catch((error)=>{
+            this.handleError(error)
+        })
+        
+       
+    }
+
+
 
     addPlaylist(playlist){
 
@@ -157,6 +195,12 @@ class ClientPage extends React.Component{
         </React.Fragment>
         )
 
+        const addToFavoritesTemplate = (
+            <React.Fragment>
+            <Button label="Add to favorites" icon="pi pi-plus" className="p-button-success mr-2" onClick={this.addToFavs} />
+        </React.Fragment>
+        )
+
 
         const deleteItemDialogFooter = (
             <React.Fragment>
@@ -181,6 +225,7 @@ class ClientPage extends React.Component{
 
                         <div className="card">
                             {(selectedPage == "playlists") && <Toolbar className="mb-4" left={leftToolbarTemplate}></Toolbar>}
+                            {(selectedPage == "songs") && <Toolbar className="mb-4" left={addToFavoritesTemplate}></Toolbar>}
 
                             {selectedPage == "songs" && <SongCollection onSongSelected={this.onItemSelected}></SongCollection>}
                             {selectedPage == "artists" && <ArtistCollection onArtistSelected={this.onItemSelected}></ArtistCollection>}

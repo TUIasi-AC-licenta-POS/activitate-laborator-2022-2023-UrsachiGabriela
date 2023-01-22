@@ -69,7 +69,7 @@ constructor(props) {
           </div>
 
           {(user && user.token) ? (
-              <div className="navbar-nav ml-auto link">
+              <div className="navbar-nav ml-auto">
                 <li className="nav-item">
                   <a onClick={this.logout} className="nav-link">Logout</a>
                 </li>

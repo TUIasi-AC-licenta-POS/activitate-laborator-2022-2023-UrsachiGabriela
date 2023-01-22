@@ -442,6 +442,13 @@ img.flag {
   }
 
 
+  .block2{
+    display: flex;
+    justify-content:space-between;
+    flex-grow: 3;
+  }
+
+
 .datatable-crud-demo .table-header {
     display: flex;
     align-items: center;

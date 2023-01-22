@@ -78,7 +78,7 @@ class PlaylistsCollection extends React.Component{
 
         const activeSongs = this.state.activeSongs.map(
             song => <ul className="block" key={song.id}>
-                <div className="link" key={song.id} onClick={()=>this.setDetailedSong(song)} > {song.name}</div>
+                <h4 className="link" key={song.id} onClick={()=>this.setDetailedSong(song)} > {song.name}</h4>
             </ul>
         )
 
@@ -88,14 +88,14 @@ class PlaylistsCollection extends React.Component{
                 {playlists}
             </div>
             <hr></hr>
-            <div className="block">
+            <div className="block2">
                 <div>
                     {activeSongs}
                 </div>
-               
+                {detailedSong && <SimpleSong handleError={this.props.handleError} songUrl={detailedSong.link}></SimpleSong>}
             </div>
             <hr></hr>
-            {detailedSong && <SimpleSong handleError={this.props.handleError} songUrl={detailedSong.link}></SimpleSong>}
+            
 
             
         </Fragment>

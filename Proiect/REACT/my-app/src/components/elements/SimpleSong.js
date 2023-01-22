@@ -1,3 +1,4 @@
+import { Card } from "primereact/card";
 import React from "react"
 import dataService from "../../services/data.service";
 
@@ -50,13 +51,13 @@ class SimpleSong extends React.Component{
         return(
             <div>
                 {song && (
-                    <div>
-                        <li>{song.id}</li>
-                        <li>{song.name}</li>
-                        <li>{song.type}</li>
-                        <li>{song.genre}</li>
-                        <li>{song.year}</li>
-                    </div>
+                    <Card>
+                        <h3>Selected song</h3>
+                        <p><b>ID:</b> {song.id}</p>
+                        <p><b>NAME:</b> {song.name}</p>
+                        <p><b>TYPE:</b> {song.type}</p>
+                        <p><b>YEAR:</b> {song.year}</p>
+                    </Card>
 
                 )}
             

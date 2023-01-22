@@ -258,18 +258,19 @@ class SongCollection extends React.Component{
 
            
                         
-                        <DataTable className="link" ref={(el) => this.dt = el} value={songs} selectionMode="single" onSelectionChange={(this.props.onSongSelected)&& (e => this.props.onSongSelected(e.value))}
+                        <DataTable  ref={(el) => this.dt = el} value={songs} selectionMode="single" onSelectionChange={(this.props.onSongSelected)&& (e => this.props.onSongSelected(e.value))}
                             dataKey="id" 
                             globalFilter={this.state.globalFilter} 
                             header={header}
                             footer={footer} 
                             responsiveLayout="scroll">
                             {/* <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} exportable={false}></Column> */}
-                            
+                            <Column field="id" header="ID" sortable style={{ minWidth: '8rem' }}></Column>
                             <Column field="year" header="Year" sortable style={{ minWidth: '8rem' }}></Column>
                             <Column field="name" header="Title" sortable style={{ minWidth: '16rem' }}></Column>
                             <Column field="genre" header="Genre" sortable></Column>
                             <Column field="type" header="Type" sortable></Column>
+                            <Column field="parentId" header="Album" sortable style={{ minWidth: '8rem' }}></Column>
                         </DataTable>
                  
 
