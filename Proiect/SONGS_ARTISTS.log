@@ -90,10 +90,3 @@
 2023-01-22 20:26:28 [http-nio-8080-exec-5] INFO  : [AuthService] -> verify roles
 2023-01-22 20:26:28 [http-nio-8080-exec-5] INFO  : [ControllerAdvice] -> handle RuntimeException, details:Invalid genre
 2023-01-22 20:36:15 [http-nio-8080-exec-7] INFO  : Init duration for springdoc-openapi is: 886 ms
-2023-01-22 20:51:30 [http-nio-8080-exec-1] INFO  : [SongsController] -> GET, getAllSongs: page:0, size:100, searchBy:null, searchedValue:null, match:null
-2023-01-22 20:51:33 [http-nio-8080-exec-3] INFO  : [ArtistsController] -> GET, getAllArtists: page:0, size:9, name:null, match:null
-2023-01-22 20:51:33 [http-nio-8080-exec-4] INFO  : [SongsController] -> GET, getAllSongs: page:0, size:9, searchBy:null, searchedValue:null, match:null
-2023-01-22 20:51:33 [http-nio-8080-exec-5] INFO  : [SongsController] -> GET, getAllSongs: page:0, size:100, searchBy:null, searchedValue:null, match:null
-2023-01-22 20:53:40 [SpringApplicationShutdownHook] INFO  : Closing JPA EntityManagerFactory for persistence unit 'default'
-2023-01-22 20:53:40 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown initiated...
-2023-01-22 20:53:40 [SpringApplicationShutdownHook] INFO  : HikariPool-1 - Shutdown completed.
