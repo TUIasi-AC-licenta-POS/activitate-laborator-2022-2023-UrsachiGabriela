@@ -14,7 +14,6 @@ from utils.roles_code import Roles
 
 class IDMService(ServiceBase):
 
-    # at new account creation, the user can select his role from CLIENT or ARTIST
     @rpc(String, String, _returns=String)
     def register_user(ctx, uname, upass):
         role = get_role_by_name(Roles.CLIENT.name)
