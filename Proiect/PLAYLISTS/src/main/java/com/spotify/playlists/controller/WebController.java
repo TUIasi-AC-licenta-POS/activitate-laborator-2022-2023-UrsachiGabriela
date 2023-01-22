@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +38,7 @@ import java.util.Set;
 // update playlist name -> PATCH
 
 
+@Log4j2
 @RestController
 @Validated
 @CrossOrigin(origins = "http://localhost:3000/")
@@ -71,6 +73,8 @@ public class WebController {
             @Pattern(regexp = "^[-,a-zA-Z0-9\\s]*", message = "Invalid name format")
             String name,
             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        log.info("[{}] -> GET, getAllPlaylists", this.getClass().getSimpleName());
+
 
         // authorize
         Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
@@ -98,6 +102,8 @@ public class WebController {
     @GetMapping(value = "/playlists/{id}")
     public ResponseEntity<PlaylistResponse> getPlaylistById(@PathVariable String id,
                                                             @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        log.info("[{}] -> GET, getPlaylistWithID {}", this.getClass().getSimpleName(),id);
+
 
         // authorize
         Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
@@ -124,6 +130,8 @@ public class WebController {
     @PostMapping("/playlists")
     public ResponseEntity<PlaylistResponse> createPlaylist(@Valid @RequestBody PlaylistRequest playlistRequest,
                                                            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        log.info("[{}] -> POST, createPlaylist: {}", this.getClass().getSimpleName(),playlistRequest);
 
         // authorize
         Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
@@ -156,6 +164,8 @@ public class WebController {
     public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String playlistId,
                                                               @Validated @RequestBody SimpleSongRequest songRequest,
                                                               @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        log.info("[{}] -> PATCH, add song {} to playlist {}", this.getClass().getSimpleName(),songRequest,playlistId);
+
         // authorize
         Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
 
@@ -187,6 +197,8 @@ public class WebController {
     @DeleteMapping("/playlists/{playlistId}")
     public ResponseEntity<PlaylistResponse> deletePlaylist(@PathVariable String playlistId,
                                                            @RequestHeader(name = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+        log.info("[{}] -> DELETE, deletePlaylist: {}", this.getClass().getSimpleName(),playlistId);
+
         // authorize
         Integer userID = authService.authorize(authorizationHeader, UserRoles.CLIENT);
 
