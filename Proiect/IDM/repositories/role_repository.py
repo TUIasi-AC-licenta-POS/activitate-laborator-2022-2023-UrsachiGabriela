@@ -1,7 +1,5 @@
 from models.entities.role_orm import Role
 from repositories import user_repository
-from repositories.repository import Repository
-from utils.roles_code import Roles
 
 session = user_repository.session
 
