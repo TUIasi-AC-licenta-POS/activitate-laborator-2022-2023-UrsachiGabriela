@@ -39,14 +39,12 @@ import java.util.Set;
 
 @RestController
 @Validated
+@CrossOrigin(origins = "http://localhost:3000/")
 @RequestMapping("/api/playlistscollection")
 public class WebController {
 
     @Autowired
     private AuthService authService;
-
-    // temporary
-    private static final String USER_ID = "1";
 
     @Autowired
     private PlaylistService playlistService;
@@ -145,30 +143,6 @@ public class WebController {
         return ResponseEntity.status(HttpStatus.CREATED).body(playlistResponse);
     }
 
-//    @Operation(summary = "Add songs to an existing playlist - from SA module")
-//    @ApiResponses(value =
-//            {
-//                    @ApiResponse(responseCode = "200", description = "Successfully inserted new song in playlist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = PlaylistResponse.class))}),
-//                    @ApiResponse(responseCode = "400", description = "Incorrect syntax for path variables", content = @Content),
-//                    @ApiResponse(responseCode = "404", description = "Searched playlist not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))),
-//                    @ApiResponse(responseCode = "422", description = "Unable to process the contained instructions", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ExceptionResponse.class))}),
-//            })
-//    @PostMapping("/playlists/{id}/songs")
-//    public ResponseEntity<PlaylistResponse> addSongToPlaylist(@PathVariable String id, @RequestBody SongRequestResponse songRequestResponse) {
-//        // map to resource
-//        Resource song = songMapper.toSongResource(songRequestResponse);
-//
-//        // update db
-//        Playlist updatedPlaylist = playlistService.addSongToPlaylist(USER_ID, id, song);
-//
-//        // map to dto
-//        PlaylistResponse playlistResponse = playlistMapper.toPlaylistDTO(updatedPlaylist);
-//
-//        // add links
-//        playlistModelAssembler.toModel(playlistResponse);
-//
-//        return ResponseEntity.ok().body(playlistResponse);
-//    }
 
     @Operation(summary = "Add songs to an existing playlist")
     @ApiResponses(value =
